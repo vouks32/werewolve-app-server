@@ -8,6 +8,27 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
+
+        const hostname = '127.0.0.1'; // Localhost
+        const port = 3000; // Choose a port number
+    
+        // Create the HTTP server
+        const server = http.createServer((req, res) => {
+          // Set the response header
+          res.writeHead(200, { 'Content-Type': 'text/plain' });
+    
+          // Send the response body
+          res.end('Hello, World!\n');
+        });
+    
+        // Start the server and listen on the specified port and hostname
+        server.listen(port, hostname, () => {
+          console.log(`Server running at http://${hostname}:${port}/`);
+        });
+
+
+
+
         this.wss = new WebSocketServer({ port: 8088 });
 
         this.wss.on('connection', function connection(ws) {
@@ -49,7 +70,7 @@ export class AppSocket {
             ws.send('Welcome to the WebSocket server!');
         });
 
-        console.log('WebSocket server is running on ws://localhost:8080');
+        console.log('WebSocket server is running on ws://localhost:8088');
     }
 
     on(name, f) {

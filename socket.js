@@ -11,7 +11,7 @@ export class AppSocket {
 
 
         const hostname = '127.0.0.1'; // Localhost
-        const port = 3000; // Choose a port number
+        const port = 80; // Choose a port number
 
         // Create the HTTP server
         const server = http.createServer((req, res) => {

@@ -1,6 +1,8 @@
 import { WebSocketServer } from 'ws';
 import { getUser, saveUser } from './userStorage.js';
 import http from 'node:http'
+import e from 'express';
+import cors from "cors";
 
 // --- Main Manager ---
 export class AppSocket {
@@ -10,24 +12,24 @@ export class AppSocket {
         this.eventsMap.set("messages.upsert", [])
 
 
-        const hostname = '127.0.0.1'; // Localhost
-        const port = 80; // Choose a port number
+        const api = e();
+        api.use(cors({
+            allowedHeaders: "*",
+            origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
+                return callback(null, true);
+            },
+            methods: ["GET", "POST", "PUT", "DELETE"]
+        }));
+        api.use(e.json());
 
-        // Create the HTTP server
-        const server = http.createServer((req, res) => {
-            // Set the response header
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-
-            // Send the response body
-            res.end('Hello, World!\n');
+        // Récupération des données compte
+        api.get('/', async (req, res) => {
+            res.json({ good: true })
         });
 
-        // Start the server and listen on the specified port and hostname
-        server.listen(port, hostname, () => {
-            console.log(`Server running at http://${hostname}:${port}/`);
+        api.listen(80, () => {
+            console.log(`Serveur joueur démarré sur le port 80`);
         });
-
-
 
 
         this.wss = new WebSocketServer({ port: 8088 });

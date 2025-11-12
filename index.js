@@ -4,7 +4,7 @@ import { QuizManager } from "./GamesManagers/quiz.js";
 import { Insult1 } from "./apis/insult.js";
 import { getAllUsers, getUser, saveUser } from "./userStorage.js";
 import sharp from "sharp";
-import fs from "fs"
+import fs from "fs" 
 import NodeCache from "node-cache";
 import { QuizManagerFR } from "./GamesManagers/quiz-fr.js";
 import { fancyTransform } from './TextConverter.js'

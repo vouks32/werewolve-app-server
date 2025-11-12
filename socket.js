@@ -1,5 +1,5 @@
 import { WebSocketServer } from 'ws';
-import { getUser, saveUser } from './userStorage';
+import { getUser, saveUser } from './userStorage.js';
 
 // --- Main Manager ---
 export class AppSocket {

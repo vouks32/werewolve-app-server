@@ -12,7 +12,7 @@ export class AppSocket {
         this.eventsMap.set("messages.upsert", [])
 
 
-        const api = e();
+       /* const api = e();
         api.use(cors({
             allowedHeaders: "*",
             origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
@@ -29,10 +29,10 @@ export class AppSocket {
 
         api.listen(80, () => {
             console.log(`Serveur joueur démarré sur le port 80`);
-        });
+        });*/
 
 
-        this.wss = new WebSocketServer({ port: 8088 });
+        this.wss = new WebSocketServer({ port: 80 });
 
         this.wss.on('connection', function connection(ws) {
             console.log('Client connected');
@@ -73,7 +73,7 @@ export class AppSocket {
             ws.send('Welcome to the WebSocket server!');
         });
 
-        console.log('WebSocket server is running on ws://localhost:8088');
+        console.log('WebSocket server is running on ws://localhost:80');
     }
 
     on(name, f) {

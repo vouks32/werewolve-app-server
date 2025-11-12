@@ -1,0 +1,12 @@
+okay, I'm trying to implementing a werewolf game in a whatsapp groupe using baileys. This how it is suppose to go :
+- a play sends '!startgame' in the groupe chat
+- the baileys connected number (we will further call him "bot") will initiate a party, prompting the groupe members to send '!play' if they want to play and the bot will wait 5 minutes for each willing group member  to send and be saved into a local json array file with values jid, isPlaying, and isDeath
+- Everytime someone joins, a list of all registered players for the party will be send by the bot in the group
+- once the 5 minutes gone, the party will begin and the bot will assign random roles to the players making the wolves around 20% of the total number of players.
+- then the night will settle and each role that has something to do at night will be prompted in their private conversation with the bot to chose a player on which to do it. those who don't have anything to do will be send a message saying so.
+- Then 5 mins later the day will settle and the bot will inform in the groupe who has died and other events if any
+- Each player that has something to do in the day will be privately be prompted to choose who to do what
+- in the day time, in the groupe, the players will be prompted to vote who is the warewolf
+- if the majority has voted one person or at the end of the day, the vote results are given.
+- then the game cycles back
+I want you to use this description i have given to detail de structure of the nodejs code that will be able to do this. don't give me the actual code, just describe how the code will be structured and how it will work

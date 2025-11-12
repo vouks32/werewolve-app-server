@@ -1,0 +1,405 @@
+{
+  "secteurs": [
+    {
+      "nom": "Vêtements",
+      "batiments": [
+        {
+          "nom": "Friperie",
+          "actions": [
+            {
+              "nom": "Acheter Marchandise",
+              "type": "achat",
+              "objets_obtenus": [
+                {
+                  "nom": "T-shirt basique",
+                  "prix": 15,
+                  "effets": {"bonheur": 5},
+                  "conditions": {"argent": 15}
+                },
+                {
+                  "nom": "Jean d'occasion",
+                  "prix": 30,
+                  "effets": {"bonheur": 8},
+                  "conditions": {"argent": 30}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Vendeur friperie",
+                  "salaire": 80,
+                  "conditions": {"bonheur": 40, "sante": 60}
+                }
+              ]
+            },
+            {
+              "nom": "Acheter Business",
+              "type": "acquisition",
+              "objets_obtenus": [
+                {
+                  "nom": "Propriétaire friperie",
+                  "prix": 5000,
+                  "revenus": 300,
+                  "conditions": {"argent": 5000}
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nom": "Gucci",
+          "actions": [
+            {
+              "nom": "Acheter Marchandise",
+              "type": "achat",
+              "objets_obtenus": [
+                {
+                  "nom": "Costume designer",
+                  "prix": 800,
+                  "effets": {"bonheur": 25, "force": -5},
+                  "conditions": {"argent": 800}
+                },
+                {
+                  "nom": "Robe de soirée",
+                  "prix": 1200,
+                  "effets": {"bonheur": 30},
+                  "conditions": {"argent": 1200}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Vendeur Gucci",
+                  "salaire": 200,
+                  "conditions": {"bonheur": 60, "sante": 80}
+                },
+                {
+                  "nom": "Couturier",
+                  "salaire": 350,
+                  "conditions": {"bonheur": 70, "sante": 85}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nom": "Marché noir",
+      "batiments": [
+        {
+          "nom": "Petit marché noir",
+          "actions": [
+            {
+              "nom": "Acheter Marchandise",
+              "type": "achat",
+              "objets_obtenus": [
+                {
+                  "nom": "Couteau",
+                  "prix": 50,
+                  "effets": {"force": 15, "bonheur": -10},
+                  "conditions": {"argent": 50}
+                },
+                {
+                  "nom": "Poison basique",
+                  "prix": 100,
+                  "effets": {"sante": -30},
+                  "conditions": {"argent": 100}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Voleur amateur",
+                  "salaire": 120,
+                  "effets": {"sante": -10, "bonheur": -15},
+                  "conditions": {"force": 40}
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nom": "Grand marché noir",
+          "actions": [
+            {
+              "nom": "Acheter Marchandise",
+              "type": "achat",
+              "objets_obtenus": [
+                {
+                  "nom": "Pistolet",
+                  "prix": 500,
+                  "effets": {"force": 40, "bonheur": -20},
+                  "conditions": {"argent": 500}
+                },
+                {
+                  "nom": "Pouvoir occulte",
+                  "prix": 1000,
+                  "effets": {"force": 25, "sante": -15},
+                  "conditions": {"argent": 1000}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Voleur professionnel",
+                  "salaire": 300,
+                  "effets": {"sante": -20, "bonheur": -10},
+                  "conditions": {"force": 70}
+                },
+                {
+                  "nom": "Marabout",
+                  "salaire": 400,
+                  "conditions": {"bonheur": 30, "sante": 50}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nom": "Nourriture",
+      "batiments": [
+        {
+          "nom": "Magasin",
+          "actions": [
+            {
+              "nom": "Acheter Marchandise",
+              "type": "achat",
+              "objets_obtenus": [
+                {
+                  "nom": "Courses basiques",
+                  "prix": 25,
+                  "effets": {"sante": 10, "bonheur": 5},
+                  "conditions": {"argent": 25}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Vendeur alimentaire",
+                  "salaire": 90,
+                  "conditions": {"sante": 60}
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nom": "Restaurant",
+          "actions": [
+            {
+              "nom": "Acheter Marchandise",
+              "type": "achat",
+              "objets_obtenus": [
+                {
+                  "nom": "Plat du jour",
+                  "prix": 45,
+                  "effets": {"sante": 15, "bonheur": 10},
+                  "conditions": {"argent": 45}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Serveur",
+                  "salaire": 100,
+                  "conditions": {"bonheur": 50, "sante": 70}
+                },
+                {
+                  "nom": "Cuisinier",
+                  "salaire": 180,
+                  "conditions": {"sante": 80}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nom": "Éducation",
+      "batiments": [
+        {
+          "nom": "Université",
+          "actions": [
+            {
+              "nom": "S'inscrire",
+              "type": "formation",
+              "objets_obtenus": [
+                {
+                  "nom": "Diplôme de gestion",
+                  "prix": 2000,
+                  "effets": {"bonheur": 15},
+                  "conditions": {"argent": 2000, "sante": 70}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Professeur",
+                  "salaire": 400,
+                  "conditions": {"bonheur": 70, "sante": 80}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nom": "Soins",
+      "batiments": [
+        {
+          "nom": "Hôpital",
+          "actions": [
+            {
+              "nom": "Payer Services",
+              "type": "soin",
+              "objets_obtenus": [
+                {
+                  "nom": "Soins d'urgence",
+                  "prix": 300,
+                  "effets": {"sante": 50},
+                  "conditions": {"argent": 300}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Infirmier",
+                  "salaire": 250,
+                  "conditions": {"sante": 85}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nom": "Justice",
+      "batiments": [
+        {
+          "nom": "Poste de Police",
+          "actions": [
+            {
+              "nom": "Payer Services",
+              "type": "service",
+              "objets_obtenus": [
+                {
+                  "nom": "Protection policière",
+                  "prix": 200,
+                  "effets": {"bonheur": 20},
+                  "conditions": {"argent": 200}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Policier",
+                  "salaire": 350,
+                  "conditions": {"force": 70, "sante": 80}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nom": "Administratif",
+      "batiments": [
+        {
+          "nom": "Mairie",
+          "actions": [
+            {
+              "nom": "Payer Services",
+              "type": "service",
+              "objets_obtenus": [
+                {
+                  "nom": "Mariage",
+                  "prix": 500,
+                  "effets": {"bonheur": 40},
+                  "conditions": {"argent": 500, "amoureux": true}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Maire",
+                  "salaire": 1000,
+                  "conditions": {"bonheur": 80, "sante": 90}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nom": "Logements",
+      "batiments": [
+        {
+          "nom": "Maison",
+          "actions": [
+            {
+              "nom": "Payer Services",
+              "type": "logement",
+              "objets_obtenus": [
+                {
+                  "nom": "Achat maison",
+                  "prix": 10000,
+                  "effets": {"bonheur": 50},
+                  "conditions": {"argent": 10000}
+                }
+              ]
+            },
+            {
+              "nom": "Postuler",
+              "type": "emploi",
+              "objets_obtenus": [
+                {
+                  "nom": "Agent immobilier",
+                  "salaire": 400,
+                  "conditions": {"bonheur": 60}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

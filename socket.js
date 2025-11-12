@@ -10,7 +10,7 @@ export class AppSocket {
 
         this.wss = new WebSocketServer({ port: 8088 });
 
-        wss.on('connection', function connection(ws) {
+        this.wss.on('connection', function connection(ws) {
             console.log('Client connected');
 
             ws.on('message', function message(raw) {

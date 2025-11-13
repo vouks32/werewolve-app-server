@@ -72,8 +72,8 @@ export function getAllUsers() {
 
 export function saveMessage(message) {
 
-    const date = new Date(message.date)
-    const message_date = date.getDate() + '-' + date.getMonth() + '-' + date.getFullYear()
+    const mdate = new Date(message.date)
+    const message_date = mdate.getDate() + '-' + mdate.getMonth() + '-' + mdate.getFullYear()
 
     if (!fs.existsSync(path.join(MESSAGE_FOLDER, message_date + '.json'))) {
         fs.writeFileSync(path.join(MESSAGE_FOLDER, message_date + '.json'), JSON.stringify([message], null, 2))
@@ -88,8 +88,8 @@ export function saveMessage(message) {
 
 export function getMessages(date) {
 
-    const date = new Date(message.date)
-    const message_date = date.getDate() + '-' + date.getMonth() + '-' + date.getFullYear()
+    const mdate = new Date(date)
+    const message_date = mdate.getDate() + '-' + mdate.getMonth() + '-' + mdate.getFullYear()
 
     if (!fs.existsSync(MESSAGE_FOLDER)) fs.mkdirSync(MESSAGE_FOLDER, { recursive: true })
 

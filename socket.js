@@ -20,6 +20,7 @@ export class AppSocket {
                 const data = JSON.parse(raw)
                 switch (data.type) {
                     case 'init':
+                        console.log("init thing")
                         try {
                             let players = getAllUsers()
                             let messages = getMessages(Date.now())

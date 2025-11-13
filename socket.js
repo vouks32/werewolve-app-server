@@ -24,7 +24,7 @@ export class AppSocket {
                         try {
                             let players = getAllUsers()
                             let messages = getMessages(Date.now())
-                            ws.send(JSON.stringify({ success: true, serverType: 'init', data: { players, messages} }));
+                            ws.send(JSON.stringify({ success: true, serverType: 'init', data: { players, messages } }));
                         } catch (error) {
                             console.log("error saving user", error)
                             ws.send(JSON.stringify({ success: false, serverType: 'return', error, ...data }));
@@ -59,10 +59,10 @@ export class AppSocket {
             });
 
             ws.on('close', () => {
-                console.log('Client disconnected');
+                console.log('Client disconnected', ws.url);
             });
 
-            ws.send('Welcome to the WebSocket server!');
+            //ws.send('Welcome to the WebSocket server!');
         });
 
         console.log('WebSocket server is running on ws://localhost:80');

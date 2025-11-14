@@ -35,7 +35,7 @@ export class AppSocket {
             cors: {
                 // Set the origin to allow all. You can be more specific later.
                 // The client origin is 'http://192.168.1.188:8081'.
-                origin: "https://werewolve.share.zrok.io/", 
+                origin: "https://werewolve.share.zrok.io", 
                 methods: ["GET", "POST"]
             }
         });

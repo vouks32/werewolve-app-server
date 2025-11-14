@@ -1,8 +1,17 @@
-import { WebSocketServer } from 'ws';
+import WebSocket from 'ws';
 import { getUser, saveUser, getAllUsers, getMessages, saveMessage } from './userStorage.js';
-import http from 'node:http'
+import https from 'node:https'
 import e from 'express';
 import cors from "cors";
+import fs from 'fs'
+
+
+const server = https.createServer({
+    cert: fs.readFileSync('/ssl/production/certificate.pem'),
+    key: fs.readFileSync('/ssl/production/private-key.pem')
+});
+
+
 
 // --- Main Manager ---
 export class AppSocket {
@@ -12,7 +21,7 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
-        let _wss = new WebSocketServer({ port: 80 });
+        let _wss = new WebSocket.Server({ server });
         this.wss = _wss
 
         this.wss.on('connection', function connection(ws) {
@@ -73,7 +82,9 @@ export class AppSocket {
             //ws.send('Welcome to the WebSocket server!');
         });
 
-        console.log('WebSocket server is running on ws://localhost:80');
+        server.listen(80, () => {
+            console.log('WSS server listening on port 80');
+        });
     }
 
     broadcastMessage(message, senderWs = null) {

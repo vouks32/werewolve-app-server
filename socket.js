@@ -45,6 +45,7 @@ export class AppSocket {
                         try {
                             saveMessage(data.data)
                             ws.send(JSON.stringify({ success: true, serverType: 'return', ...data }));
+                            this.broadcastMessage(JSON.stringify({ serverType: 'notification', ...data }), ws)
                         } catch (error) {
                             console.log("error saving user", error)
                             ws.send(JSON.stringify({ success: false, serverType: 'return', error, ...data }));
@@ -66,6 +67,15 @@ export class AppSocket {
         });
 
         console.log('WebSocket server is running on ws://localhost:80');
+    }
+
+    broadcastMessage(message, senderWs = null) {
+        this.wss.clients.forEach(client => {
+            // Ensure the client is open and optionally, not the sender
+            if (client.readyState === WebSocket.OPEN && client !== senderWs) {
+                client.send(message);
+            }
+        });
     }
 
     on(name, f) {

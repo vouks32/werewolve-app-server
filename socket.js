@@ -4,11 +4,12 @@ import https from 'node:https'
 import e from 'express';
 import cors from "cors";
 import fs from 'fs'
+import path from 'node:path';
 
 
 const server = https.createServer({
-    cert: fs.readFileSync('/ssl/production/certificate.pem'),
-    key: fs.readFileSync('/ssl/production/private-key.pem')
+    cert: fs.readFileSync( path.join(__dirname, '/ssl/production/certificate.pem')),
+    key: fs.readFileSync(path.join(__dirname, '/ssl/production/private-key.pem'))
 });
 
 

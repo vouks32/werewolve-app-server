@@ -72,7 +72,7 @@ export function getAllUsers() {
 
 export function saveMessage(message) {
 
-    const mdate = new Date(message.date)
+    const mdate = new Date(message.time)
     const message_date = mdate.getDate() + '-' + mdate.getMonth() + '-' + mdate.getFullYear()
 
     if (!fs.existsSync(path.join(MESSAGE_FOLDER, message_date + '.json'))) {

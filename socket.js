@@ -8,6 +8,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Server } from "socket.io";
 
+
+const app = express();
+app.use(cors({ origin: "*" }));
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -20,9 +24,14 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
-        const server =  http.createServer();
+        const server =  http.createServer(app);
 
-        let _wss = new Server(server);
+        let _wss = new Server(server, {
+            cors: {
+              origin: "*",
+              methods: ["GET", "POST"]
+            }
+          });
         this.wss = _wss
 
         this.wss.on('connection', function connection(ws) {

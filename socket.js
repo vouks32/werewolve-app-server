@@ -5,7 +5,10 @@ import e from 'express';
 import cors from "cors";
 import fs from 'fs'
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const server = https.createServer({
     cert: fs.readFileSync( path.join(__dirname, '/ssl/production/certificate.pem')),

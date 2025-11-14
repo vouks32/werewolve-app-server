@@ -53,7 +53,6 @@ export class AppSocket {
         this.app.get('/users', this.handleGetUsers.bind(this));
         
         // Handle undefined routes
-        this.app.all('*', this.handleNotFound.bind(this));
         
         // Error handling middleware
         this.app.use(this.handleErrors.bind(this));

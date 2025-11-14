@@ -13,17 +13,17 @@ const app = e();
 app.use(cors({
     allowedHeaders: "*",
     origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
-      return callback(null, true);
+        return callback(null, true);
     },
     methods: ["GET", "POST", "PUT", "DELETE"]
-  }));
+}));
 
-  app.use((req, res, next) => {
+app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
-  });
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,7 +37,7 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
-        const server =  http.createServer((req, res) => {
+        const server = http.createServer((req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*'); // Or '*'
             res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Add allowed methods
             res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Add allowed headers
@@ -51,10 +51,13 @@ export class AppSocket {
 
         let _wss = new Server(server, {
             cors: {
-              origin: "*",
-              methods: ["GET", "POST"]
+                allowedHeaders: "*",
+                origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
+                    return callback(null, true);
+                },
+                methods: ["GET", "POST", "PUT", "DELETE"]
             }
-          });
+        });
         this.wss = _wss
 
         this.wss.on('connection', function connection(ws) {
@@ -98,7 +101,7 @@ export class AppSocket {
                         } catch (error) {
                             console.log("error saving user", error)
                             ws.send(JSON.stringify({ success: false, serverType: 'return', error, ...data }));
-                          
+
                         }
                         break;
 
@@ -113,7 +116,7 @@ export class AppSocket {
                 console.log('Client disconnected');
             });
 
-        
+
             //ws.send('Welcome to the WebSocket server!');
         });
 

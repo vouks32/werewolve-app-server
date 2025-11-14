@@ -37,7 +37,17 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
-        const server =  http.createServer(app);
+        const server =  http.createServer((req, res) => {
+            res.setHeader('Access-Control-Allow-Origin', '*'); // Or '*'
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Add allowed methods
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Add allowed headers
+
+            if (req.method === 'OPTIONS') {
+                res.writeHead(204); // Respond to preflight requests
+                res.end();
+                return;
+            }
+        });
 
         let _wss = new Server(server, {
             cors: {

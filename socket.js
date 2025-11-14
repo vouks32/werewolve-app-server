@@ -7,14 +7,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Server } from "socket.io";
 
-const app = e();
+/*const app = e();
 app.use(cors({
     allowedHeaders: "*",
     origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
         return callback(null, true);
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-}));
+}));*/
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,16 +28,12 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
-        const server = http.createServer(app);
+        const server = http.createServer();
 
         // *** Use the correct Socket.IO server setup ***
         let _wss = new Server(server, {
-            cors: {
-                // Set the origin to allow all. You can be more specific later.
-                // The client origin is 'http://192.168.1.188:8081'.
-                origin: "https://werewolve.share.zrok.io", 
-                methods: ["GET", "POST"]
-            }
+            transports: ["websocket"], // Only websocket
+            allowUpgrades: false       // Disable upgrading from polling
         });
         this.wss = _wss
 
@@ -74,10 +70,10 @@ export class AppSocket {
                 try {
                     saveMessage(data.data)
                     socket.emit('return', { success: true, serverType: 'return', ...data }); // Send success back to sender
-                    
+
                     // Use this.wss.emit or socket.broadcast.emit for broadcasting
                     // Use 'notification' as the event name
-                    socket.broadcast.emit('notification', { serverType: 'notification', ...data }); 
+                    socket.broadcast.emit('notification', { serverType: 'notification', ...data });
                 } catch (error) {
                     console.log("error saving message", error)
                     socket.emit('return', { success: false, serverType: 'return', error, ...data });

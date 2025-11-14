@@ -12,7 +12,8 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
-        this.wss = new WebSocketServer({ port: 80 });
+        let _wss = new WebSocketServer({ port: 80 });
+        this.wss = _wss
 
         this.wss.on('connection', function connection(ws) {
             console.log('Client connected');
@@ -46,7 +47,7 @@ export class AppSocket {
                         try {
                             saveMessage(data.data)
                             ws.send(JSON.stringify({ success: true, serverType: 'return', ...data }));
-                            this.wss.clients.forEach(client => {
+                            _wss.clients.forEach(client => {
                                 // Ensure the client is open and optionally, not the sender
                                 if (client.readyState === WebSocket.OPEN && client !== ws) {
                                     client.send(message);

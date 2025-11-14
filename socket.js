@@ -50,7 +50,7 @@ export class AppSocket {
                             _wss.clients.forEach(client => {
                                 // Ensure the client is open and optionally, not the sender
                                 if (client.readyState === WebSocket.OPEN && client !== ws) {
-                                    client.send(message);
+                                    client.send({ serverType: 'notification', ...data });
                                 }
                             });
                         } catch (error) {

@@ -1,6 +1,6 @@
 import { getUser, saveUser, getAllUsers, getMessages, saveMessage } from './userStorage.js';
-import http from 'node:http';
-import { URL, URLSearchParams } from 'node:url';
+import express from 'express';
+import cors from 'cors';
 
 // --- Main Manager ---
 export class AppSocket {
@@ -14,13 +14,27 @@ export class AppSocket {
         this.clientCounter = 0;
         this.messageQueue = []; // Store messages for clients that poll
         
-        this.server = http.createServer(this.handleRequest.bind(this));
+        // Create Express app
+        this.app = express();
+        
+        // Configure CORS to allow all origins
+        this.app.use(cors({
+            origin: '*',
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            allowedHeaders: ['Content-Type', 'Authorization']
+        }));
+        
+        // Parse JSON bodies
+        this.app.use(express.json());
+        
+        // Set up routes
+        this.setupRoutes();
         
         // Cleanup interval for stale connections
         this.cleanupInterval = setInterval(this.cleanupStaleConnections.bind(this), 30000);
         
-        this.server.listen(80, () => {
-            console.log('Long polling server listening on port 80');
+        this.server = this.app.listen(80, () => {
+            console.log('Express long polling server listening on port 80');
         });
         
         // Error handling for server
@@ -29,56 +43,23 @@ export class AppSocket {
         });
     }
 
-    handleRequest(req, res) {
-        // Enable CORS
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    setupRoutes() {
+        // Define routes
+        this.app.get('/init', this.handleInit.bind(this));
+        this.app.post('/inscription', this.handleInscription.bind(this));
+        this.app.post('/message', this.handleMessage.bind(this));
+        this.app.get('/poll', this.handlePoll.bind(this));
+        this.app.get('/health', this.handleHealth.bind(this));
+        this.app.get('/users', this.handleGetUsers.bind(this));
         
-        if (req.method === 'OPTIONS') {
-            res.statusCode = 200;
-            res.end();
-            return;
-        }
-
-        const url = new URL(req.url, `http://${req.headers.host}`);
-        const pathname = url.pathname;
+        // Handle undefined routes
+        this.app.all('*', this.handleNotFound.bind(this));
         
-        try {
-            switch (pathname) {
-                case '/init':
-                    this.handleInit(req, res, url);
-                    break;
-                case '/inscription':
-                    this.handleInscription(req, res, url);
-                    break;
-                case '/message':
-                    this.handleMessage(req, res, url);
-                    break;
-                case '/poll':
-                    this.handlePoll(req, res, url);
-                    break;
-                case '/health':
-                    this.handleHealth(req, res);
-                    break;
-                case '/users':
-                    this.handleGetUsers(req, res, url);
-                    break;
-                default:
-                    this.sendError(res, 404, 'Endpoint not found');
-            }
-        } catch (error) {
-            console.error('Request handling error:', error);
-            this.sendError(res, 500, 'Internal server error');
-        }
+        // Error handling middleware
+        this.app.use(this.handleErrors.bind(this));
     }
 
-    async handleInit(req, res, url) {
-        if (req.method !== 'GET') {
-            this.sendError(res, 405, 'Method not allowed');
-            return;
-        }
-
+    async handleInit(req, res) {
         try {
             const clientId = this.generateClientId();
             const players = getAllUsers();
@@ -96,14 +77,9 @@ export class AppSocket {
         }
     }
 
-    async handleInscription(req, res, url) {
-        if (req.method !== 'POST') {
-            this.sendError(res, 405, 'Method not allowed');
-            return;
-        }
-
+    async handleInscription(req, res) {
         try {
-            const body = await this.parseRequestBody(req);
+            const body = req.body;
             if (!body || !body.data) {
                 this.sendError(res, 400, 'Missing data in request');
                 return;
@@ -133,14 +109,9 @@ export class AppSocket {
         }
     }
 
-    async handleMessage(req, res, url) {
-        if (req.method !== 'POST') {
-            this.sendError(res, 405, 'Method not allowed');
-            return;
-        }
-
+    async handleMessage(req, res) {
         try {
-            const body = await this.parseRequestBody(req);
+            const body = req.body;
             if (!body || !body.data) {
                 this.sendError(res, 400, 'Missing message data');
                 return;
@@ -178,12 +149,7 @@ export class AppSocket {
         }
     }
 
-    async handleGetUsers(req, res, url) {
-        if (req.method !== 'GET') {
-            this.sendError(res, 405, 'Method not allowed');
-            return;
-        }
-
+    async handleGetUsers(req, res) {
         try {
             const players = getAllUsers();
             this.sendSuccess(res, {
@@ -196,15 +162,10 @@ export class AppSocket {
         }
     }
 
-    handlePoll(req, res, url) {
-        if (req.method !== 'GET') {
-            this.sendError(res, 405, 'Method not allowed');
-            return;
-        }
-
-        const clientId = url.searchParams.get('clientId');
-        const timeout = parseInt(url.searchParams.get('timeout')) || 30000; // Default 30 seconds
-        const since = parseInt(url.searchParams.get('since')) || 0;
+    handlePoll(req, res) {
+        const clientId = req.query.clientId;
+        const timeout = parseInt(req.query.timeout) || 30000; // Default 30 seconds
+        const since = parseInt(req.query.since) || 0;
 
         if (!clientId) {
             this.sendError(res, 400, 'clientId parameter required');
@@ -245,6 +206,15 @@ export class AppSocket {
             pendingClients: this.pendingRequests.size,
             timestamp: Date.now()
         });
+    }
+
+    handleNotFound(req, res) {
+        this.sendError(res, 404, 'Endpoint not found');
+    }
+
+    handleErrors(error, req, res, next) {
+        console.error('Unhandled error:', error);
+        this.sendError(res, 500, 'Internal server error');
     }
 
     handlePollTimeout(clientId) {
@@ -320,31 +290,12 @@ export class AppSocket {
         return `client_${++this.clientCounter}_${Date.now()}`;
     }
 
-    parseRequestBody(req) {
-        return new Promise((resolve, reject) => {
-            let body = '';
-            req.on('data', chunk => {
-                body += chunk.toString();
-            });
-            req.on('end', () => {
-                try {
-                    resolve(body ? JSON.parse(body) : {});
-                } catch (error) {
-                    reject(new Error('Invalid JSON body'));
-                }
-            });
-            req.on('error', reject);
-        });
-    }
-
     sendSuccess(res, data) {
         try {
-            res.setHeader('Content-Type', 'application/json');
-            res.statusCode = 200;
-            res.end(JSON.stringify({
+            res.status(200).json({
                 success: true,
                 ...data
-            }));
+            });
         } catch (error) {
             console.error('Error sending success response:', error);
         }
@@ -352,13 +303,11 @@ export class AppSocket {
 
     sendError(res, code, message, additionalData = {}) {
         try {
-            res.setHeader('Content-Type', 'application/json');
-            res.statusCode = code;
-            res.end(JSON.stringify({
+            res.status(code).json({
                 success: false,
                 error: message,
                 ...additionalData
-            }));
+            });
         } catch (error) {
             console.error('Error sending error response:', error);
         }
@@ -390,4 +339,15 @@ export class AppSocket {
             this.server.close();
         }
     }
+}
+
+// Alternative: Simple Express app export for direct use
+export function createApp() {
+    const appSocket = new AppSocket();
+    return appSocket.app;
+}
+
+// If this file is run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+    new AppSocket();
 }

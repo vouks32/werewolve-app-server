@@ -19,7 +19,7 @@ export class AppSocket {
         
         // Configure CORS to allow all origins
         this.app.use(cors({
-            origin: '*',
+            origin: 'https://werewolve.share.zrok.io',
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization']
         }));

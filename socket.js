@@ -1,20 +1,15 @@
 import { WebSocketServer } from 'ws';
 import { getUser, saveUser, getAllUsers, getMessages, saveMessage } from './userStorage.js';
-import https from 'node:https'
+import http from 'node:http'
 import e from 'express';
 import cors from "cors";
 import fs from 'fs'
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Server } from "socket.io";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const server = https.createServer({
-    cert: fs.readFileSync(path.join(__dirname, '/ssl/production/certificate.pem')),
-    key: fs.readFileSync(path.join(__dirname, '/ssl/production/private-key.pem'))
-});
-
 
 
 // --- Main Manager ---
@@ -25,7 +20,9 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
-        let _wss = new WebSocketServer({ server });
+        const server =  http.createServer();
+
+        let _wss = new Server(server);
         this.wss = _wss
 
         this.wss.on('connection', function connection(ws) {
@@ -69,6 +66,7 @@ export class AppSocket {
                         } catch (error) {
                             console.log("error saving user", error)
                             ws.send(JSON.stringify({ success: false, serverType: 'return', error, ...data }));
+                          
                         }
                         break;
 
@@ -80,9 +78,10 @@ export class AppSocket {
             });
 
             ws.on('close', () => {
-                console.log('Client disconnected', ws.url);
+                console.log('Client disconnected');
             });
 
+        
             //ws.send('Welcome to the WebSocket server!');
         });
 

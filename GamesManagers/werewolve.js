@@ -41,6 +41,7 @@ function pickRandomRoles(players) {
 export class WereWolvesManager {
     constructor() {
         this.games = this.loadGames()
+    
     }
 
     async init(whatsapp) {

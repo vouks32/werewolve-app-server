@@ -6,6 +6,7 @@ import cors from "cors";
 
 // --- Main Manager ---
 export class AppSocket {
+
     constructor() {
         this.eventsMap = new Map()
         this.eventsMap.set('group-participants.update', [])
@@ -45,7 +46,12 @@ export class AppSocket {
                         try {
                             saveMessage(data.data)
                             ws.send(JSON.stringify({ success: true, serverType: 'return', ...data }));
-                            this.broadcastMessage(JSON.stringify({ serverType: 'notification', ...data }), ws)
+                            this.wss.clients.forEach(client => {
+                                // Ensure the client is open and optionally, not the sender
+                                if (client.readyState === WebSocket.OPEN && client !== ws) {
+                                    client.send(message);
+                                }
+                            });
                         } catch (error) {
                             console.log("error saving user", error)
                             ws.send(JSON.stringify({ success: false, serverType: 'return', error, ...data }));

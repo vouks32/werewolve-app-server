@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import { WebSocketServer } from 'ws';
 import { getUser, saveUser, getAllUsers, getMessages, saveMessage } from './userStorage.js';
 import https from 'node:https'
 import e from 'express';
@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const server = https.createServer({
-    cert: fs.readFileSync( path.join(__dirname, '/ssl/production/certificate.pem')),
+    cert: fs.readFileSync(path.join(__dirname, '/ssl/production/certificate.pem')),
     key: fs.readFileSync(path.join(__dirname, '/ssl/production/private-key.pem'))
 });
 
@@ -25,7 +25,7 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
-        let _wss = new WebSocket.Server({ server });
+        let _wss = new WebSocketServer({ server });
         this.wss = _wss
 
         this.wss.on('connection', function connection(ws) {

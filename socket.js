@@ -15,15 +15,8 @@ app.use(cors({
     origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
         return callback(null, true);
     },
-    methods: ["GET", "POST", "PUT", "DELETE"]
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
-
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,17 +30,7 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
-        const server = http.createServer((req, res) => {
-            res.setHeader('Access-Control-Allow-Origin', '*'); // Or '*'
-            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Add allowed methods
-            res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Add allowed headers
-
-            if (req.method === 'OPTIONS') {
-                res.writeHead(204); // Respond to preflight requests
-                res.end();
-                return;
-            }
-        });
+        const server = http.createServer(app);
 
         let _wss = new Server(server, {
             cors: {
@@ -55,7 +38,7 @@ export class AppSocket {
                 origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
                     return callback(null, true);
                 },
-                methods: ["GET", "POST", "PUT", "DELETE"]
+                methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
             }
         });
         this.wss = _wss

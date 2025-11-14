@@ -10,7 +10,13 @@ import { Server } from "socket.io";
 
 
 const app = e();
-app.use(cors({ origin: "*" }));
+app.use(cors({
+    allowedHeaders: "*",
+    origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
+      return callback(null, true);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"]
+  }));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

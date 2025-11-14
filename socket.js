@@ -28,7 +28,13 @@ export class AppSocket {
         this.eventsMap.set('group-participants.update', [])
         this.eventsMap.set("messages.upsert", [])
 
-        const server = http.createServer();
+        const server = http.createServer((req, res) => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/plain');
+            res.end('Hello World');
+          });
+
+        
 
         // *** Use the correct Socket.IO server setup ***
         let _wss = new Server(server, {

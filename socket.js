@@ -7,11 +7,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Server } from "socket.io";
 
-
 const app = e();
 app.use(cors({
     allowedHeaders: "*",
-    origin: '*',
+    origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
+        return callback(null, true);
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
 
@@ -29,87 +30,76 @@ export class AppSocket {
 
         const server = http.createServer(app);
 
+        // *** Use the correct Socket.IO server setup ***
         let _wss = new Server(server, {
             cors: {
-                allowedHeaders: "*",
-                origin: '*',
-                methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+                // Set the origin to allow all. You can be more specific later.
+                // The client origin is 'http://192.168.1.188:8081'.
+                origin: "*", 
+                methods: ["GET", "POST"]
             }
         });
         this.wss = _wss
 
-        this.wss.on('connection', function connection(ws) {
-            console.log('Client connected');
+        // *** Use Socket.IO's 'socket' object instead of 'ws' ***
+        this.wss.on('connection', function connection(socket) {
+            console.log('Client connected: ' + socket.id);
 
-            ws.on('message', function message(raw) {
-                const data = JSON.parse(raw)
-                switch (data.type) {
-                    case 'init':
-                        console.log("init thing")
-                        try {
-                            let players = getAllUsers()
-                            let messages = getMessages(Date.now())
-                            ws.send(JSON.stringify({ success: true, serverType: 'init', data: { players, messages } }));
-                        } catch (error) {
-                            console.log("error saving user", error)
-                            ws.send(JSON.stringify({ success: false, serverType: 'return', error, ...data }));
-                        }
-                        break;
-
-                    case 'inscription':
-                        try {
-                            saveUser(data.data)
-                            ws.send(JSON.stringify({ success: true, serverType: 'return', ...data }));
-                        } catch (error) {
-                            console.log("error saving user", error)
-                            ws.send(JSON.stringify({ success: false, serverType: 'return', error, ...data }));
-                        }
-                        break;
-
-                    case 'message':
-                        try {
-                            saveMessage(data.data)
-                            ws.send(JSON.stringify({ success: true, serverType: 'return', ...data }));
-                            _wss.clients.forEach(client => {
-                                // Ensure the client is open and optionally, not the sender
-                                if (client.readyState === WebSocket.OPEN && client !== ws) {
-                                    client.send(JSON.stringify({ serverType: 'notification', ...data }));
-                                }
-                            });
-                        } catch (error) {
-                            console.log("error saving user", error)
-                            ws.send(JSON.stringify({ success: false, serverType: 'return', error, ...data }));
-
-                        }
-                        break;
-
-                    default:
-                        break;
+            // *** Socket.IO uses event names, not a switch statement on message content ***
+            socket.on('init', function (data) {
+                console.log("init thing")
+                try {
+                    let players = getAllUsers()
+                    let messages = getMessages(Date.now())
+                    // Use socket.emit to send to the current client
+                    socket.emit('init', { success: true, serverType: 'init', data: { players, messages } });
+                } catch (error) {
+                    console.log("error fetching data", error)
+                    // Use socket.emit to send back an error
+                    socket.emit('return', { success: false, serverType: 'return', error, ...data });
                 }
-                //console.log('received: %s', data);
-                // Echo back the received message
             });
 
-            ws.on('close', () => {
-                console.log('Client disconnected');
+            socket.on('inscription', function (data) {
+                try {
+                    saveUser(data.data)
+                    socket.emit('return', { success: true, serverType: 'return', ...data });
+                } catch (error) {
+                    console.log("error saving user", error)
+                    socket.emit('return', { success: false, serverType: 'return', error, ...data });
+                }
             });
 
+            socket.on('message', function (data) {
+                try {
+                    saveMessage(data.data)
+                    socket.emit('return', { success: true, serverType: 'return', ...data }); // Send success back to sender
+                    
+                    // Use this.wss.emit or socket.broadcast.emit for broadcasting
+                    // Use 'notification' as the event name
+                    socket.broadcast.emit('notification', { serverType: 'notification', ...data }); 
+                } catch (error) {
+                    console.log("error saving message", error)
+                    socket.emit('return', { success: false, serverType: 'return', error, ...data });
+                }
+            });
 
-            //ws.send('Welcome to the WebSocket server!');
-        });
+            socket.on('disconnect', () => {
+                console.log('Client disconnected: ' + socket.id);
+            });
+
+        }); // End of wss.on('connection')
+
 
         server.listen(80, () => {
             console.log('WSS server listening on port 80');
         });
     }
 
-    broadcastMessage(message, senderWs = null) {
-        this.wss.clients.forEach(client => {
-            // Ensure the client is open and optionally, not the sender
-            if (client.readyState === WebSocket.OPEN && client !== senderWs) {
-                client.send(message);
-            }
-        });
+    // This method is now obsolete for Socket.IO. Use this.wss.emit() or socket.broadcast.emit()
+    // For completeness, if you needed a utility, it would look like this:
+    broadcastMessage(eventName, message) {
+        this.wss.emit(eventName, message);
     }
 
     on(name, f) {

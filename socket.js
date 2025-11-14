@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { Server } from "socket.io";
 
 
-const app = express();
+const app = e();
 app.use(cors({ origin: "*" }));
 
 const __filename = fileURLToPath(import.meta.url);

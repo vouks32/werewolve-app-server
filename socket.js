@@ -19,7 +19,7 @@ export class AppSocket {
         
         // Configure CORS to allow all origins
         this.app.use(cors({
-            origin: 'https://werewolve.share.zrok.io',
+            origin: '*',
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization']
         }));
@@ -33,7 +33,7 @@ export class AppSocket {
         // Cleanup interval for stale connections
         this.cleanupInterval = setInterval(this.cleanupStaleConnections.bind(this), 30000);
         
-        this.server = this.app.listen(80, () => {
+        this.server = this.app.listen(8080, () => {
             console.log('Express long polling server listening on port 80');
         });
         

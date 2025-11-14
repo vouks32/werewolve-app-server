@@ -1,4 +1,3 @@
-import { WebSocketServer } from 'ws';
 import { getUser, saveUser, getAllUsers, getMessages, saveMessage } from './userStorage.js';
 import http from 'node:http'
 import e from 'express';
@@ -12,9 +11,7 @@ import { Server } from "socket.io";
 const app = e();
 app.use(cors({
     allowedHeaders: "*",
-    origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
-        return callback(null, true);
-    },
+    origin: '*',
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
 
@@ -35,9 +32,7 @@ export class AppSocket {
         let _wss = new Server(server, {
             cors: {
                 allowedHeaders: "*",
-                origin: function (origin, callback) { // allow requests with no origin  // (like mobile apps or curl requests)
-                    return callback(null, true);
-                },
+                origin: '*',
                 methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
             }
         });

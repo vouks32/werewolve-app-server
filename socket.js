@@ -57,7 +57,7 @@ export class AppSocket {
             console.error('Server error:', error);
         });
 
-        const io = Server(server)
+        const io = Server(this.server)
 
         io.on('connection', (socket) => {
             console.log('A user connected');

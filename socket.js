@@ -8,35 +8,38 @@ export class AppSocket {
         this.eventsMap = new Map();
         this.eventsMap.set('group-participants.update', []);
         this.eventsMap.set("messages.upsert", []);
-        
+
         // Store pending long polling requests
         this.pendingRequests = new Map(); // key: clientId, value: { res, timer, timestamp }
         this.clientCounter = 0;
         this.messageQueue = []; // Store messages for clients that poll
-        
+
         // Create Express app
         this.app = express();
-        
+
         // Configure CORS to allow all origins
         this.app.use(cors({
-            origin: '*',
+            allowedHeaders: "*",
+            origin: function (origin, callback) {
+                callback(null, true)
+            },
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization']
         }));
-        
+
         // Parse JSON bodies
         this.app.use(express.json());
-        
+
         // Set up routes
         this.setupRoutes();
-        
+
         // Cleanup interval for stale connections
         this.cleanupInterval = setInterval(this.cleanupStaleConnections.bind(this), 30000);
-        
-        this.server = this.app.listen(8080, () => {
-            console.log('Express long polling server listening on port 80');
+
+        this.server = this.app.listen(3001, () => {
+            console.log('Express long polling server listening on port 3001');
         });
-        
+
         // Error handling for server
         this.server.on('error', (error) => {
             console.error('Server error:', error);
@@ -51,9 +54,9 @@ export class AppSocket {
         this.app.get('/poll', this.handlePoll.bind(this));
         this.app.get('/health', this.handleHealth.bind(this));
         this.app.get('/users', this.handleGetUsers.bind(this));
-        
+
         // Handle undefined routes
-        
+
         // Error handling middleware
         this.app.use(this.handleErrors.bind(this));
     }
@@ -63,7 +66,7 @@ export class AppSocket {
             const clientId = this.generateClientId();
             const players = getAllUsers();
             const messages = getMessages(Date.now() - 3600000); // Last hour
-            
+
             this.sendSuccess(res, {
                 clientId,
                 players,
@@ -85,7 +88,7 @@ export class AppSocket {
             }
 
             saveUser(body.data);
-            
+
             // Notify all clients about user list update
             const userUpdateNotification = {
                 serverType: 'notification',
@@ -95,7 +98,7 @@ export class AppSocket {
             };
             this.messageQueue.push(userUpdateNotification);
             this.notifyPendingClients(userUpdateNotification);
-            
+
             this.sendSuccess(res, {
                 success: true,
                 serverType: 'return',
@@ -123,7 +126,7 @@ export class AppSocket {
             }
 
             saveMessage(body.data);
-            
+
             // Add to message queue for polling clients
             const notification = {
                 serverType: 'notification',
@@ -132,10 +135,10 @@ export class AppSocket {
                 timestamp: Date.now()
             };
             this.messageQueue.push(notification);
-            
+
             // Notify all pending poll requests
             this.notifyPendingClients(notification);
-            
+
             this.sendSuccess(res, {
                 success: true,
                 serverType: 'return',
@@ -231,7 +234,7 @@ export class AppSocket {
 
     notifyPendingClients(notification) {
         const clientsToRemove = [];
-        
+
         for (const [clientId, pending] of this.pendingRequests.entries()) {
             try {
                 this.sendSuccess(pending.res, {
@@ -246,7 +249,7 @@ export class AppSocket {
                 clientsToRemove.push(clientId);
             }
         }
-        
+
         // Remove notified clients
         clientsToRemove.forEach(clientId => {
             this.pendingRequests.delete(clientId);
@@ -260,7 +263,7 @@ export class AppSocket {
     cleanupStaleConnections() {
         const now = Date.now();
         const staleTimeout = 35000; // 35 seconds
-        
+
         for (const [clientId, pending] of this.pendingRequests.entries()) {
             if (now - pending.timestamp > staleTimeout) {
                 console.log('Cleaning up stale connection:', clientId);
@@ -269,10 +272,10 @@ export class AppSocket {
                 this.pendingRequests.delete(clientId);
             }
         }
-        
+
         // Cleanup old messages (keep last 1000 messages or last hour)
         const oneHourAgo = Date.now() - 3600000;
-        this.messageQueue = this.messageQueue.filter(msg => 
+        this.messageQueue = this.messageQueue.filter(msg =>
             msg.timestamp > oneHourAgo
         ).slice(-1000);
     }
@@ -333,7 +336,7 @@ export class AppSocket {
             }
         }
         this.pendingRequests.clear();
-        
+
         if (this.server) {
             this.server.close();
         }

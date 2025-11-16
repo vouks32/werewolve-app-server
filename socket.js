@@ -17,6 +17,17 @@ export class AppSocket {
         // Create Express app
         this.app = express();
 
+        this.app.use((req, res, next) => {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+            res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            if (req.method === "OPTIONS") {
+                return res.sendStatus(200);
+            }
+            next();
+        });
+
+        
         // Configure CORS to allow all origins
         this.app.use(cors({
             allowedHeaders: "*",
@@ -54,7 +65,10 @@ export class AppSocket {
         this.app.get('/poll', this.handlePoll.bind(this));
         this.app.get('/health', this.handleHealth.bind(this));
         this.app.get('/users', this.handleGetUsers.bind(this));
-
+        this.app.get('/', (req, res) => {
+            res.json({ server: "running", ok: true });
+        });
+        
         // Handle undefined routes
 
         // Error handling middleware

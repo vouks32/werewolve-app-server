@@ -1,7 +1,6 @@
 import { getUser, saveUser, getAllUsers, getMessages, saveMessage } from './userStorage.js';
 import express from 'express';
 import cors from 'cors';
-import socket from 'socket.io';
 
 // --- Main Manager ---
 export class AppSocket {
@@ -55,20 +54,6 @@ export class AppSocket {
         // Error handling for server
         this.server.on('error', (error) => {
             console.error('Server error:', error);
-        });
-
-        const io = socket(server)
-
-        io.on('connection', (socket) => {
-            console.log('A user connected');
-    
-            socket.on('chat message', (msg) => {
-                io.emit('chat message', msg); // Broadcast the message to all connected clients
-            });
-    
-            socket.on('disconnect', () => {
-                console.log('User disconnected');
-            });
         });
     }
 

@@ -57,7 +57,20 @@ export class AppSocket {
             console.error('Server error:', error);
         });
 
-        const io = new Server(this.server)
+        const io = new Server(this.server, {
+            cors: {
+                allowedHeaders: "*",
+                origin: function (origin, callback) {
+                    callback(null, true)
+                },
+                methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+                allowedHeaders: ['Content-Type', 'Authorization']
+            }
+        })
+
+        io.engine.on("initial_headers", (headers, req) => {
+            headers["skip_zrok_interstitial"] = "123";
+          });
 
         io.on('connection', (socket) => {
             console.log('A user connected');

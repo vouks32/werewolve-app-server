@@ -69,8 +69,13 @@ export class AppSocket {
         })
 
         io.engine.on("initial_headers", (headers, req) => {
-            headers["skip_zrok_interstitial"] = "123";
-          });
+            headers["Access-Control-Allow-Origin"] = "*";
+            headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS";
+            headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, skip_zrok_interstitial";
+            if (req.method === "OPTIONS") {
+                return res.sendStatus(200);
+            }
+        });
 
         io.on('connection', (socket) => {
             console.log('A user connected');

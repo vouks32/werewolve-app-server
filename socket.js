@@ -100,6 +100,7 @@ export class AppSocket {
         this.app.get('/poll', this.handlePoll.bind(this));
         this.app.get('/health', this.handleHealth.bind(this));
         this.app.get('/users', this.handleGetUsers.bind(this));
+        this.app.get('/socket.io', this.handleGetUsers.bind(this));
         this.app.get('/', (req, res) => {
             res.json({ server: "running", ok: true });
         });

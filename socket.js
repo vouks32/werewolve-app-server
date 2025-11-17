@@ -49,45 +49,11 @@ export class AppSocket {
         // Cleanup interval for stale connections
         this.cleanupInterval = setInterval(this.cleanupStaleConnections.bind(this), 30000);
 
-        this.server = http.createServer((req, res, next) => {
-            res.header("Access-Control-Allow-Origin", "*");
-            res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-            res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, skip_zrok_interstitial");
-            if (req.method === "OPTIONS") {
-                return res.sendStatus(200);
-            }
-            next();
-        });
-
-        // Create socket.io server
-        this.io = new Server(this.server, {
-            cors: {
-                origin: "*",
-                methods: ["GET", "POST"],
-                allowedHeaders: ["Content-Type", "Authorization"],
-            }
-        });
-
-        this.io.on('connection', (socket) => {
-            console.log('A user connected');
-
-            socket.on('chat message', (msg) => {
-                io.emit('chat message', msg); // Broadcast the message to all connected clients
-            });
-
-            socket.on('disconnect', () => {
-                console.log('User disconnected');
-            });
-        });
-
         // Start the server
-        this.server.listen(3001, () => {
-            console.log("Server running on port 3001");
-        });
 
-        /* this.server = this.app.listen(3001, () => {
+         this.server = this.app.listen(3001, () => {
              console.log('Express long polling server listening on port 3001');
-         });*/
+         });
 
         // Error handling for server
         this.server.on('error', (error) => {

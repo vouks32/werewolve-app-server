@@ -49,7 +49,15 @@ export class AppSocket {
         // Cleanup interval for stale connections
         this.cleanupInterval = setInterval(this.cleanupStaleConnections.bind(this), 30000);
 
-        this.server = http.createServer(this.app);
+        this.server = http.createServer((req, res, next) => {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+            res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, skip_zrok_interstitial");
+            if (req.method === "OPTIONS") {
+                return res.sendStatus(200);
+            }
+            next();
+        });
 
         // Create socket.io server
         this.io = new Server(this.server, {

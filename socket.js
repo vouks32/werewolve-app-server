@@ -52,9 +52,9 @@ export class AppSocket {
 
         // Start the server
 
-         this.server = this.app.listen(3001, () => {
-             console.log('Express long polling server listening on port 3001');
-         });
+        this.server = this.app.listen(3001, () => {
+            console.log('Express long polling server listening on port 3001');
+        });
 
         // Error handling for server
         this.server.on('error', (error) => {
@@ -133,19 +133,20 @@ export class AppSocket {
 
     async handleMessage(req, res) {
         try {
-            const body = req.body;
+            let body = req.body;
             if (!body || !body.data) {
                 this.sendError(res, 400, 'Missing message data');
                 return;
             }
 
             // Validate required fields
-            if (!body.data.key.id || body.data.status !== 'pending') {
+            if (!body.data.key.id || body.data.status !== 'sending') {
                 console.log(body.data)
                 this.sendError(res, 400, 'Message missing or wrong required fields');
                 return;
             }
 
+            body.data.status = "send"
             saveMessage(body.data);
 
             // Add to message queue for polling clients

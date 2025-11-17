@@ -86,7 +86,7 @@ export class AppSocket {
             const clientId = this.generateClientId();
             const players = getAllUsers();
             const messages = getMessages(Date.now() - 3600000); // Last hour
-            const onlineUsers =  Array.from(this.pendingRequests.values()).map(u => u.number)
+            const onlineUsers = Array.from(this.pendingRequests.values()).map(u => u.number)
             this.sendSuccess(res, {
                 clientId,
                 players,
@@ -94,13 +94,6 @@ export class AppSocket {
                 onlineUsers,
                 serverType: 'init'
             });
-            console.log('init info',{
-                clientId,
-                players,
-                messages,
-                onlineUsers,
-                serverType: 'init'
-            })
         } catch (error) {
             console.error('Init error:', error);
             this.sendError(res, 500, 'Failed to initialize', { error: error.message });
@@ -205,28 +198,18 @@ export class AppSocket {
             return;
         }
 
+        console.log(number, 'is pulling...')
         // Notify all clients about user list update
-        const userUpdateNotificationMessage = {
-            key: {
-                id: "server-" + Date.now(),
-                senderNumber: 'server'
-            },
-            type: "users-count",
-            message: Array.from(this.pendingRequests.values()).map(u => u.number),
-            status: 'send',
-            time: Date.now()
-        };
-        this.messageQueue.push(userUpdateNotificationMessage);
 
         // Check for immediate messages
         let recentMessages = this.getMessageSince(since) || [];
-        recentMessages.push(userUpdateNotificationMessage)
-        
-        if (recentMessages.length > 1) {
+
+        if (recentMessages.length > 0) {
             this.sendSuccess(res, {
                 serverType: 'poll',
                 messages: recentMessages,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                onlineUsers: this.pendingRequests.entries().map(e => e[1].number)
             });
             return;
         }
@@ -273,7 +256,8 @@ export class AppSocket {
                 serverType: 'poll',
                 messages: [],
                 timestamp: Date.now(),
-                status: 'timeout'
+                status: 'timeout',
+                onlineUsers: this.pendingRequests.entries().map(e => e[1].number)
             });
             this.pendingRequests.delete(clientId);
         }
@@ -281,23 +265,14 @@ export class AppSocket {
 
     notifyPendingClients(notification) {
         const clientsToRemove = [];
-        const userUpdateNotificationMessage = {
-            key: {
-                id: "server-" + Date.now(),
-                senderNumber: 'server'
-            },
-            type: "users-count",
-            message: Array.from(this.pendingRequests.values()).map(u => u.number),
-            status: 'send',
-            time: Date.now()
-        };
 
         for (const [clientId, pending] of this.pendingRequests.entries()) {
             try {
                 this.sendSuccess(pending.res, {
                     serverType: 'poll',
-                    messages: [notification, userUpdateNotificationMessage],
+                    messages: [notification],
                     timestamp: Date.now(),
+                    onlineUsers: this.pendingRequests.entries().map(e => e[1].number)
                 });
                 clearTimeout(pending.timer);
                 clientsToRemove.push(clientId);

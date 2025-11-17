@@ -203,7 +203,7 @@ export class AppSocket {
                 id: "server-" + Date.now(),
                 senderNumber: 'server'
             },
-            type: "user-count",
+            type: "users-count",
             message: Array.from(this.pendingRequests.values()).map(u => u.number),
             status: 'send',
             time: Date.now()

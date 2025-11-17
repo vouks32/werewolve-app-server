@@ -86,7 +86,7 @@ export class AppSocket {
             const clientId = this.generateClientId();
             const players = getAllUsers();
             const messages = getMessages(Date.now() - 3600000); // Last hour
-            const onlineUsers = Array.from(this.pendingRequests.values()).map(u => u.number)
+            const onlineUsers = this.pendingRequests.entries().map(e => e[1].number)
             this.sendSuccess(res, {
                 clientId,
                 players,
@@ -203,13 +203,17 @@ export class AppSocket {
 
         // Check for immediate messages
         let recentMessages = this.getMessageSince(since) || [];
+        let onlineUsers = []
+        for (const [clientId, pending] of this.pendingRequests.entries()) {
+            onlineUsers.push(pending.number)
+        }
 
         if (recentMessages.length > 0) {
             this.sendSuccess(res, {
                 serverType: 'poll',
                 messages: recentMessages,
                 timestamp: Date.now(),
-                onlineUsers: this.pendingRequests.entries().map(e => e[1].number)
+                onlineUsers
             });
             return;
         }
@@ -252,12 +256,16 @@ export class AppSocket {
     handlePollTimeout(clientId) {
         const pending = this.pendingRequests.get(clientId);
         if (pending) {
+            let onlineUsers = []
+            for (const [clientId, pending] of this.pendingRequests.entries()) {
+                onlineUsers.push(pending.number)
+            }
             this.sendSuccess(pending.res, {
                 serverType: 'poll',
                 messages: [],
                 timestamp: Date.now(),
                 status: 'timeout',
-                onlineUsers: this.pendingRequests.entries().map(e => e[1].number)
+                onlineUsers
             });
             this.pendingRequests.delete(clientId);
         }
@@ -265,14 +273,17 @@ export class AppSocket {
 
     notifyPendingClients(notification) {
         const clientsToRemove = [];
-
+        let onlineUsers = []
+        for (const [clientId, pending] of this.pendingRequests.entries()) {
+            onlineUsers.push(pending.number)
+        }
         for (const [clientId, pending] of this.pendingRequests.entries()) {
             try {
                 this.sendSuccess(pending.res, {
                     serverType: 'poll',
                     messages: [notification],
                     timestamp: Date.now(),
-                    onlineUsers: this.pendingRequests.entries().map(e => e[1].number)
+                    onlineUsers
                 });
                 clearTimeout(pending.timer);
                 clientsToRemove.push(clientId);

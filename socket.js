@@ -94,6 +94,13 @@ export class AppSocket {
                 onlineUsers,
                 serverType: 'init'
             });
+            console.log('init info',{
+                clientId,
+                players,
+                messages,
+                onlineUsers,
+                serverType: 'init'
+            })
         } catch (error) {
             console.error('Init error:', error);
             this.sendError(res, 500, 'Failed to initialize', { error: error.message });
@@ -274,13 +281,23 @@ export class AppSocket {
 
     notifyPendingClients(notification) {
         const clientsToRemove = [];
+        const userUpdateNotificationMessage = {
+            key: {
+                id: "server-" + Date.now(),
+                senderNumber: 'server'
+            },
+            type: "users-count",
+            message: Array.from(this.pendingRequests.values()).map(u => u.number),
+            status: 'send',
+            time: Date.now()
+        };
 
         for (const [clientId, pending] of this.pendingRequests.entries()) {
             try {
                 this.sendSuccess(pending.res, {
                     serverType: 'poll',
-                    messages: [notification],
-                    timestamp: Date.now()
+                    messages: [notification, userUpdateNotificationMessage],
+                    timestamp: Date.now(),
                 });
                 clearTimeout(pending.timer);
                 clientsToRemove.push(clientId);

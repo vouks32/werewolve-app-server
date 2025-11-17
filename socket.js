@@ -2,6 +2,7 @@ import { getUser, saveUser, getAllUsers, getMessages, saveMessage } from './user
 import express from 'express';
 import cors from 'cors';
 import { Server } from 'socket.io';
+import http from "http";
 
 // --- Main Manager ---
 export class AppSocket {
@@ -48,36 +49,16 @@ export class AppSocket {
         // Cleanup interval for stale connections
         this.cleanupInterval = setInterval(this.cleanupStaleConnections.bind(this), 30000);
 
-        this.server = this.app.listen(3001, () => {
-            console.log('Express long polling server listening on port 3001');
-        });
+        this.server = http.createServer(this.app);
 
-        // Error handling for server
-        this.server.on('error', (error) => {
-            console.error('Server error:', error);
-        });
-
-        const io = new Server(this.server, {
+        // Create socket.io server
+        this.io = new Server(this.server, {
             cors: {
-                allowedHeaders: "*",
-                origin: function (origin, callback) {
-                    callback(null, true)
-                },
-                methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-                allowedHeaders: ['Content-Type', 'Authorization']
+                origin: "*",
+                methods: ["GET", "POST"],
+                allowedHeaders: ["Content-Type", "Authorization"],
             }
-        })
-
-        io.engine.attach(this.app)
-
-       /* io.engine.on("initial_headers", (headers, req) => {
-            headers["Access-Control-Allow-Origin"] = "*";
-            headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS";
-            headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, skip_zrok_interstitial";
-            if (req.method === "OPTIONS") {
-                return res.sendStatus(200);
-            }
-        });*/
+        });
 
         io.on('connection', (socket) => {
             console.log('A user connected');
@@ -89,6 +70,20 @@ export class AppSocket {
             socket.on('disconnect', () => {
                 console.log('User disconnected');
             });
+        });
+
+        // Start the server
+        this.server.listen(3001, () => {
+            console.log("Server running on port 3001");
+        });
+
+        /* this.server = this.app.listen(3001, () => {
+             console.log('Express long polling server listening on port 3001');
+         });*/
+
+        // Error handling for server
+        this.server.on('error', (error) => {
+            console.error('Server error:', error);
         });
     }
 

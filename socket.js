@@ -213,7 +213,7 @@ export class AppSocket {
 
         // Check for immediate messages
         let recentMessages = this.getMessageSince(since) || [];
-        recentMessages.push(userUpdateNotification)
+        recentMessages.push(userUpdateNotificationMessage)
         
         if (recentMessages.length > 0) {
             this.sendSuccess(res, {

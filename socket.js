@@ -215,7 +215,7 @@ export class AppSocket {
         let recentMessages = this.getMessageSince(since) || [];
         recentMessages.push(userUpdateNotificationMessage)
         
-        if (recentMessages.length > 0) {
+        if (recentMessages.length > 1) {
             this.sendSuccess(res, {
                 serverType: 'poll',
                 messages: recentMessages,

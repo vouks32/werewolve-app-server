@@ -59,9 +59,12 @@ export function getAllUsers() {
     if (!fs.existsSync(USER_FOLDER)) fs.mkdirSync(USER_FOLDER, { recursive: true })
 
     const playerFileList = fs.readdirSync(USER_FOLDER)
-    let players = {}
+    let players = []
     playerFileList.forEach(pfile => {
-        players[pfile.replace('.json', '')] = JSON.parse(fs.readFileSync(path.join(USER_FOLDER, pfile)))
+        players.push({
+            ...JSON.parse(fs.readFileSync(path.join(USER_FOLDER, pfile))),
+            id: pfile.replaceAll('.json', '')
+        })
     })
     return players
 }

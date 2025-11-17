@@ -188,6 +188,7 @@ export class AppSocket {
 
     handlePoll(req, res) {
         const clientId = req.query.clientId;
+        const number = req.query.clientNumber;
         const timeout = parseInt(req.query.timeout) || 30000; // Default 30 seconds
         const since = parseInt(req.query.since) || 0;
 
@@ -196,12 +197,25 @@ export class AppSocket {
             return;
         }
 
+        // Notify all clients about user list update
+        const userUpdateNotificationMessage = {
+            key: {
+                id: "server-" + Date.now(),
+                senderNumber: 'server'
+            },
+            type: "user-count",
+            message: Array.from(this.pendingRequests.values()).map(u => u.number),
+            status: 'send',
+            time: Date.now()
+        };
+        this.messageQueue.push(userUpdateNotificationMessage);
+
         // Check for immediate messages
         const recentMessages = this.getMessageSince(since);
         if (recentMessages.length > 0) {
             this.sendSuccess(res, {
                 serverType: 'poll',
-                messages: recentMessages,
+                messages: recentMessages.concat([userUpdateNotification]),
                 timestamp: Date.now()
             });
             return;
@@ -214,6 +228,7 @@ export class AppSocket {
 
         this.pendingRequests.set(clientId, {
             res,
+            number,
             timer,
             timestamp: Date.now()
         });

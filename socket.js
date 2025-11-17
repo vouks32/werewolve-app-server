@@ -86,11 +86,12 @@ export class AppSocket {
             const clientId = this.generateClientId();
             const players = getAllUsers();
             const messages = getMessages(Date.now() - 3600000); // Last hour
-
+            const onlineUsers =  Array.from(this.pendingRequests.values()).map(u => u.number)
             this.sendSuccess(res, {
                 clientId,
                 players,
                 messages,
+                onlineUsers,
                 serverType: 'init'
             });
         } catch (error) {
@@ -211,11 +212,13 @@ export class AppSocket {
         this.messageQueue.push(userUpdateNotificationMessage);
 
         // Check for immediate messages
-        const recentMessages = this.getMessageSince(since);
+        let recentMessages = this.getMessageSince(since) || [];
+        recentMessages.push(userUpdateNotification)
+        
         if (recentMessages.length > 0) {
             this.sendSuccess(res, {
                 serverType: 'poll',
-                messages: recentMessages.concat([userUpdateNotification]),
+                messages: recentMessages,
                 timestamp: Date.now()
             });
             return;

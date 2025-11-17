@@ -141,6 +141,7 @@ export class AppSocket {
 
             // Validate required fields
             if (!body.data.key.id || !body.data.status !== 'pending') {
+                console.log(body.data)
                 this.sendError(res, 400, 'Message missing or wrong required fields');
                 return;
             }

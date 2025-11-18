@@ -5,13 +5,14 @@ import { Server } from 'socket.io';
 import http from "http";
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
+import fs from 'fs';
 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const UPLOADS = path.join(__dirname, "../audio");
-if (!fs.existsSync(UPLOADS)) fs.mkdirSync(UPLOADS);
+if (!fstatSync.existsSync(UPLOADS)) fs.mkdirSync(UPLOADS);
 
 // Multer storage
 const storage = multer.diskStorage({

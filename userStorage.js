@@ -93,13 +93,33 @@ export function getMessages(date) {
 
     const mdate = new Date(date)
     const message_date = mdate.getDate() + '-' + mdate.getMonth() + '-' + mdate.getFullYear()
+    mdate.setDate(mdate.getDate() - 1)
+    const message_date_1 = mdate.getDate() + '-' + mdate.getMonth() + '-' + mdate.getFullYear()
+    mdate.setDate(mdate.getDate() - 1)
+    const message_date_2 = mdate.getDate() + '-' + mdate.getMonth() + '-' + mdate.getFullYear()
+
+    const msg = []
 
     if (!fs.existsSync(MESSAGE_FOLDER)) fs.mkdirSync(MESSAGE_FOLDER, { recursive: true })
 
-    if (!fs.existsSync(path.join(MESSAGE_FOLDER, message_date + '.json'))) return null
+    if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date_2 + '.json'))) 
     try {
-        return JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date + '.json')))
+        msg.push(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date_2 + '.json'))))
     } catch (error) {
         return null
     }
+    if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json'))) 
+    try {
+        msg.push(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json'))))
+    } catch (error) {
+        return null
+    }
+    if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date + '.json'))) 
+    try {
+        msg.push(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date + '.json'))))
+    } catch (error) {
+        return null
+    }
+
+    return msg
 }

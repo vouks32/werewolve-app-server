@@ -75,8 +75,8 @@ export function getAllUsers() {
 
 export function saveMessage(message) {
 
-    const mdate = new Date(message.time)
-    const message_date = mdate.getDate() + '-' + mdate.getMonth() + '-' + mdate.getFullYear()
+    const mdate = Math.floor(parseInt(message.time) / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24) // new Date(message.time)
+    const message_date = '' + mdate
 
     if (!fs.existsSync(path.join(MESSAGE_FOLDER, message_date + '.json'))) {
         fs.writeFileSync(path.join(MESSAGE_FOLDER, message_date + '.json'), JSON.stringify([message], null, 2))
@@ -91,12 +91,10 @@ export function saveMessage(message) {
 
 export function getMessages(date) {
 
-    const mdate = new Date(date)
-    const message_date = mdate.getDate() + '-' + mdate.getMonth() + '-' + mdate.getFullYear()
-    mdate.setDate(mdate.getDate() - 1)
-    const message_date_1 = mdate.getDate() + '-' + mdate.getMonth() + '-' + mdate.getFullYear()
-    mdate.setDate(mdate.getDate() - 1)
-    const message_date_2 = mdate.getDate() + '-' + mdate.getMonth() + '-' + mdate.getFullYear()
+    const mdate = Math.floor(parseInt(date) / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24) // new Date(message.time)
+    const message_date = '' + mdate
+    const message_date_1 = '' + (mdate - (1000 * 60 * 60 * 24))
+    const message_date_2 = '' + (mdate - (1000 * 60 * 60 * 24 * 2))
 
     const msg = []
 

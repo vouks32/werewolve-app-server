@@ -177,26 +177,27 @@ export class AppSocket {
         try {
             let body = req.body;
             console.log('audio', body.data)
-            if (!body || !body.data) {
+            let data = JSON.parse(body.data)
+            if (!body || !data) {
                 this.sendError(res, 400, 'Missing message data');
                 return;
             }
 
             // Validate required fields
-            if (!body.data.key.id || body.data.status !== 'sending') {
-                console.log(body.data)
+            if (!data.key.id || data.status !== 'sending') {
+                console.log(data)
                 this.sendError(res, 400, 'Message missing or wrong required fields');
                 return;
             }
 
-            body.data.status = "sent"
-            saveMessage(body.data);
+            data.status = "sent"
+            saveMessage(data);
 
             // Add to message queue for polling clients
             const notification = {
                 serverType: 'notification',
                 type: 'message',
-                data: body.data,
+                data: data,
                 timestamp: Date.now()
             };
             this.messageQueue.push(notification);
@@ -208,7 +209,7 @@ export class AppSocket {
                 success: true,
                 serverType: 'return',
                 type: 'message',
-                data: body.data
+                data: data
             });
         } catch (error) {
             console.error('Message error:', error);

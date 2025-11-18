@@ -96,7 +96,7 @@ export function getMessages(date) {
     const message_date_1 = '' + (mdate - (1000 * 60 * 60 * 24))
     const message_date_2 = '' + (mdate - (1000 * 60 * 60 * 24 * 2))
 
-    const msg = []
+    let msg = []
 
     if (!fs.existsSync(MESSAGE_FOLDER)) fs.mkdirSync(MESSAGE_FOLDER, { recursive: true })
 

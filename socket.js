@@ -4,6 +4,22 @@ import cors from 'cors';
 import { Server } from 'socket.io';
 import http from "http";
 
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const UPLOADS = path.join(__dirname, "../audio");
+if (!fs.existsSync(UPLOADS)) fs.mkdirSync(UPLOADS);
+
+// Multer storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, UPLOADS),
+});
+
+
+const upload = multer({ storage });
+
+
 // 51.20.105.210
 // --- Main Manager ---
 export class AppSocket {
@@ -75,6 +91,24 @@ export class AppSocket {
             res.json({ server: "running", ok: true });
         });
 
+        this.app.post("/audio", upload.single("audio"), (req, res) => {
+            console.log("Audio uploaded:", req.file.path);
+            await this.handleAudioMessage(req, res).bind(this)
+        });
+
+        // Serve the latest audio file
+        this.app.get("/audio", (req, res) => {
+
+            const id = req.query.id || 'x'
+            const filePath = path.join(UPLOADS, id + ".webm");
+
+            if (!fs.existsSync(filePath)) {
+                return res.status(404).send("No audio found");
+            }
+
+            res.sendFile(filePath);
+        });
+
         // Handle undefined routes
 
         // Error handling middleware
@@ -132,6 +166,48 @@ export class AppSocket {
         }
     }
 
+    async handleAudioMessage(req, res) {
+        try {
+            let body = req.body;
+            if (!body || !body.data) {
+                this.sendError(res, 400, 'Missing message data');
+                return;
+            }
+
+            // Validate required fields
+            if (!body.data.key.id || body.data.status !== 'sending') {
+                console.log(body.data)
+                this.sendError(res, 400, 'Message missing or wrong required fields');
+                return;
+            }
+
+            body.data.status = "sent"
+            saveMessage(body.data);
+
+            // Add to message queue for polling clients
+            const notification = {
+                serverType: 'notification',
+                type: 'message',
+                data: body.data,
+                timestamp: Date.now()
+            };
+            this.messageQueue.push(notification);
+
+            // Notify all pending poll requests
+            this.notifyPendingClients(notification);
+
+            this.sendSuccess(res, {
+                success: true,
+                serverType: 'return',
+                type: 'message',
+                data: body.data
+            });
+        } catch (error) {
+            console.error('Message error:', error);
+            this.sendError(res, 500, 'Failed to save message', { error: error.message });
+        }
+    }
+
     async handleMessage(req, res) {
         try {
             let body = req.body;
@@ -147,7 +223,7 @@ export class AppSocket {
                 return;
             }
 
-            body.data.status = "send"
+            body.data.status = "sent"
             saveMessage(body.data);
 
             // Add to message queue for polling clients

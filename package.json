@@ -22,6 +22,7 @@
     "html-to-json-parser": "^2.0.1",
     "jimp": "^1.6.0",
     "lets-encrypt-acme-client": "^50.0.1",
+    "multer": "^2.0.2",
     "node-cache": "^5.1.2",
     "qrcode": "^1.5.4",
     "sharp": "^0.34.4",

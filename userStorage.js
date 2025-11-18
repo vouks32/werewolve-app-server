@@ -119,7 +119,7 @@ export function getMessages(date) {
         try {
             msg = msg.concat(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date + '.json'))))
         } catch (error) {
-            console.log('couldn"t get - 3', message_date)
+            console.log('couldn"t get - 3', message_date, error)
 
         }
     }

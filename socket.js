@@ -85,7 +85,7 @@ export class AppSocket {
         try {
             const clientId = this.generateClientId();
             const players = getAllUsers();
-            const messages = getMessages(Date.now() - 3600000); // Last hour
+            const messages = getMessages(Date.now()); // Last hour
             const onlineUsers = this.pendingRequests.entries().map(e => e[1].number)
             this.sendSuccess(res, {
                 clientId,

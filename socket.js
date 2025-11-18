@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const UPLOADS = path.join(__dirname, "../audio");
-if (!fstatSync.existsSync(UPLOADS)) fs.mkdirSync(UPLOADS);
+if (!fs.existsSync(UPLOADS)) fs.mkdirSync(UPLOADS);
 
 // Multer storage
 const storage = multer.diskStorage({

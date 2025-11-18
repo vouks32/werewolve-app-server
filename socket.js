@@ -173,6 +173,7 @@ export class AppSocket {
     async handleAudioMessage(req, res) {
         try {
             let body = req.body;
+            console.log('audio',body.data)
             if (!body || !body.data) {
                 this.sendError(res, 400, 'Missing message data');
                 return;

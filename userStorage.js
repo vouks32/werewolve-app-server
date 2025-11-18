@@ -110,7 +110,7 @@ export function getMessages(date) {
     }
     if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json'))) 
     try {
-        msmsg = msg.concat(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json'))))
+        msg = msg.concat(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json'))))
     } catch (error) {
         return null
     }

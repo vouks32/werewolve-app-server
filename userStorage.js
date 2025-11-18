@@ -102,26 +102,29 @@ export function getMessages(date) {
 
     if (!fs.existsSync(MESSAGE_FOLDER)) fs.mkdirSync(MESSAGE_FOLDER, { recursive: true })
 
-    if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date_2 + '.json')))
+    if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date_2 + '.json'))) {
         try {
             msg = msg.concat(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date_2 + '.json'))))
         } catch (error) {
-            console.log('couldn"t get', message_date_2)
+            console.log('couldn"t get - 1', message_date_2)
         }
-    if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json')))
+    }
+    if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json'))) {
         try {
             msg = msg.concat(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json'))))
         } catch (error) {
-            console.log('couldn"t get', message_date_1)
+            console.log('couldn"t get - 2', message_date_1)
 
         }
-    if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date + '.json')))
+    }
+    if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date + '.json'))) {
         try {
             msg = msg.concat(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date + '.json'))))
         } catch (error) {
-            console.log('couldn"t get', message_date)
+            console.log('couldn"t get - 3', message_date)
 
         }
+    }
 
     return msg
 }

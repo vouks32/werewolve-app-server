@@ -18,6 +18,9 @@ if (!fs.existsSync(UPLOADS)) fs.mkdirSync(UPLOADS);
 // Multer storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, UPLOADS),
+    filename: (req, file, cb) => {
+        cb(null, file.originalname);  // ← Use the filename sent by the client
+    },
 });
 
 
@@ -173,7 +176,7 @@ export class AppSocket {
     async handleAudioMessage(req, res) {
         try {
             let body = req.body;
-            console.log('audio',body.data)
+            console.log('audio', body.data)
             if (!body || !body.data) {
                 this.sendError(res, 400, 'Missing message data');
                 return;

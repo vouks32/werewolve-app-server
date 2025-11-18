@@ -104,7 +104,7 @@ export class AppSocket {
         this.app.get("/audio", (req, res) => {
 
             const id = req.query.id || 'x'
-            const filePath = path.join(UPLOADS, id + ".webm");
+            const filePath = path.join(UPLOADS, id);
 
             if (!fs.existsSync(filePath)) {
                 return res.status(404).send("No audio found");

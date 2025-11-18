@@ -198,7 +198,6 @@ export class AppSocket {
             return;
         }
 
-        console.log(number, 'is pulling...')
         // Notify all clients about user list update
 
         // Check for immediate messages

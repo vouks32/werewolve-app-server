@@ -104,19 +104,19 @@ export function getMessages(date) {
 
     if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date_2 + '.json'))) 
     try {
-        msg.push(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date_2 + '.json'))))
+        msg = msg.concat(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date_2 + '.json'))))
     } catch (error) {
         return null
     }
     if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json'))) 
     try {
-        msg.push(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json'))))
+        msmsg = msg.concat(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date_1 + '.json'))))
     } catch (error) {
         return null
     }
     if (fs.existsSync(path.join(MESSAGE_FOLDER, message_date + '.json'))) 
     try {
-        msg.push(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date + '.json'))))
+        msg = msg.concat(JSON.parse(fs.readFileSync(path.join(MESSAGE_FOLDER, message_date + '.json'))))
     } catch (error) {
         return null
     }

@@ -93,7 +93,7 @@ export class AppSocket {
 
         this.app.post("/audio", upload.single("audio"), (req, res) => {
             console.log("Audio uploaded:", req.file.path);
-            await this.handleAudioMessage(req, res).bind(this)
+            this.handleAudioMessage(req, res).bind(this)
         });
 
         // Serve the latest audio file

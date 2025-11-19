@@ -109,7 +109,7 @@ export class AppSocket {
             if (!fs.existsSync(filePath)) {
                 return res.status(404).send("No audio found");
             }
-            res.setHeader("Content-Type", "audio/ogg");
+            res.setHeader("Content-Type", "audio/mp4");
             res.sendFile(filePath);
         });
 

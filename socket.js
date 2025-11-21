@@ -1,4 +1,4 @@
-import { getUser, saveUser, getAllUsers, getMessages, saveMessage } from './userStorage.js';
+import { getUser, saveUser, getAllUsers, getMessages, saveMessage, getStickers } from './userStorage.js';
 import express from 'express';
 import cors from 'cors';
 import { Server } from 'socket.io';
@@ -13,6 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const UPLOADS = path.join(__dirname, "../audio");
+const STICKERS = path.join(__dirname, "./Sticker");
 if (!fs.existsSync(UPLOADS)) fs.mkdirSync(UPLOADS);
 
 // Multer storage
@@ -113,6 +114,19 @@ export class AppSocket {
             res.sendFile(filePath);
         });
 
+        // Serve the latest audio file
+        this.app.get("/sticker", (req, res) => {
+
+            const id = req.query.id || 'x'
+            const filePath = path.join(STICKERS, id);
+
+            if (!fs.existsSync(filePath)) {
+                return res.status(404).send("No sticker found");
+            }
+            res.setHeader("Content-Type", "image/webp");
+            res.sendFile(filePath);
+        });
+
         // Handle undefined routes
 
         // Error handling middleware
@@ -123,6 +137,7 @@ export class AppSocket {
         try {
             const clientId = this.generateClientId();
             const players = getAllUsers();
+            const stickers = getStickers();
             const messages = getMessages(Date.now()); // Last hour
             const onlineUsers = this.pendingRequests.entries().map(e => e[1].number)
             this.sendSuccess(res, {
@@ -130,6 +145,7 @@ export class AppSocket {
                 players,
                 messages,
                 onlineUsers,
+                stickers,
                 serverType: 'init'
             });
         } catch (error) {

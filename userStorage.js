@@ -2,6 +2,7 @@ import fs from "fs"
 import path from "path"
 
 const USER_FOLDER = path.join(process.cwd(), "../users")
+const STICKERS_FOLDER = path.join(process.cwd(), "./Stickers")
 const MESSAGE_FOLDER = path.join(process.cwd(), "../messages")
 const killWithPowers = 5
 export const POINTS_LIST = {
@@ -67,6 +68,21 @@ export function getAllUsers() {
         })
     })
     return players
+}
+
+
+
+export function getStickers() {
+    if (!fs.existsSync(STICKERS_FOLDER)) fs.mkdirSync(STICKERS_FOLDER, { recursive: true })
+
+    const stickersFileList = fs.readdirSync(STICKERS_FOLDER)
+    let stickers = []
+    stickersFileList.forEach(pfile => {
+        stickers.push({
+            id: pfile.replaceAll('.webp', '')
+        })
+    })
+    return stickers
 }
 
 

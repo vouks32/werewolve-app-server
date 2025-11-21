@@ -9,6 +9,35 @@ import fs from 'fs';
 import multer from 'multer';
 
 
+
+
+const games = [
+    {
+      id: '0',
+      tag: '!werewolve',
+      name: 'Loup Garou',
+      icon: '🐺',
+      color: '#eee'
+    }, {
+      id: '1',
+      tag: '!pendu',
+      name: 'Pendu',
+      icon: '☠️',
+      color: '#eee'
+  
+    }, {
+      id: '2',
+      tag: '!quizfr',
+      name: 'Quiz FR',
+      icon: '🇫🇷',
+      color: '#eee'
+  
+    },
+  ];
+  
+  
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -146,6 +175,7 @@ export class AppSocket {
                 messages,
                 onlineUsers,
                 stickers,
+                games,
                 serverType: 'init'
             });
         } catch (error) {

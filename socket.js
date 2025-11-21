@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const UPLOADS = path.join(__dirname, "../audio");
-const STICKERS = path.join(__dirname, "./Sticker");
+const STICKERS = path.join(__dirname, "./Stickers");
 if (!fs.existsSync(UPLOADS)) fs.mkdirSync(UPLOADS);
 
 // Multer storage

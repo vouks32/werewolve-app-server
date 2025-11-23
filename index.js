@@ -71,8 +71,7 @@ async function startBot() {
 
 
     sock.on('group-participants.update', async (event) => {
-        const metadata = await sock.groupMetadata(event.id)
-        groupCache.set(event.id, metadata)
+        const metadata = sock.groupMetadata(event.id)
 
         for (const p of event.participants) {
             if (event.action === "add") {
@@ -83,40 +82,19 @@ async function startBot() {
 
     })
     // Handle messages
-    sock.on("messages.upsert", async (m) => {
-
-        for (const msg of m.messages) {
-            //console.log(msg, msg?.message)
-
-            if (msg.key && msg.key.remoteJid == 'status@broadcast') {
-                //console.log("status message")
-                continue
-            }
-
-            if (msg.key.fromMe) {
-                continue
-            }
+    sock.on("messages.upsert", async (msg) => {
 
 
             console.log('---------------------       message -----------------------------------------')
             // Parse the message to get type and JIDs
             const remoteJid = msg.key.remoteJid;
-            const isGroup = remoteJid.endsWith('@g.us');
-            const senderJid = isGroup ? ((msg.key?.participantAlt || msg.key?.participantPn) ? msg.key?.participantAlt || msg.key?.participantPn : msg.key?.participant || msg.key?.participantLid) : remoteJid;
-            const sender = senderJid
-            const isViewOnce = msg.key?.isViewOnce || msg.message?.viewOnceMessage || msg.message?.viewOnceMessageV2 || msg.message?.viewOnceMessageV2Extension
+            const isGroup = true;
+            const senderJid =  msg.key.number
+            const sender =  msg.key.number
+            const isViewOnce = msg.key?.isViewOnce
             const msgKeys = Object.keys(msg.message || {})
-            const messageType = msgKeys > 0 ? msgKeys[0] : null
-            const content = msg.message ? msg.message[messageType] : {}
-            const text = msg.message?.conversation ||
-                msg.message?.extendedTextMessage?.text ||
-                msg.message?.imageMessage?.caption ||
-                msg.message?.videoMessage?.caption ||
-                "";
-            const mentions = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid ||
-                msg.message?.imageMessage?.contextInfo?.mentionedJid ||
-                msg.message?.videoMessage?.contextInfo?.mentionedJid ||
-                [];
+            const text = msg.message?.caption || "";
+            const mentions = msg.message?.mentions || [];
 
             //if (text.includes('@')) console.log(msg)
             //if (text.includes('@')) console.log(msg.message.extendedTextMessage)
@@ -127,7 +105,7 @@ async function startBot() {
             if (!senderJid || !remoteJid || senderJid.length == 0 || senderJid.includes('undefined') || remoteJid.includes('undefined') || senderJid.includes('@lid')) {
                 console.log(JSON.stringify(msg, null, 2))
                 console.log("--> no senderJid", senderJid, remoteJid)
-                continue
+                return
             }
 
             if (isGroup) {
@@ -136,13 +114,13 @@ async function startBot() {
             if (text.startsWith('!') && !game && messagesCount <= 0 && isGroup) {
                 await sock.sendMessage(lastGroupJid, { text: fancyTransform(' *--- Redémarrage de sécurité ---* \n\nLa relation toxique que j\'ai avec whatsapp m\'oblige à me redémarrer \n Patiente un peu'), }, { quoted: msg }).then(handler.addMessage)
                 await startBot()
-                continue
+                return
             }
             messagesCount--;
             const whatsapp = {
                 ids: {
-                    lid: isGroup ? (msg.key.participant || msg.key?.participantLid || null) : msg.key.senderLid || null,
-                    jid: senderJid,
+                    lid: number,
+                    jid: sender,
                 },
                 isGroup,
                 remoteJid,
@@ -153,14 +131,14 @@ async function startBot() {
                 text,
                 mentions,
                 game,
-                messageType: getContentType(msg.message) || "",
+                messageType: "",
                 isViewOnce,
-                isForward: (content?.contextInfo?.isForwarded || content?.contextInfo?.forwardingScore > 0),
+                isForward: false,
                 isReaction: (msg.message?.reactionMessage),
                 raw: msg,
 
                 reply: async (message, mentions = undefined) => {
-                    await sock.sendMessage(remoteJid, { text: fancyTransform(htmlDecode(message) + (message.length > 300 ? '\n\n𝐯𝐨𝐮𝐤𝐬 𝐛𝐨𝐭' : "")), mentions: mentions }, { quoted: getContentType(msg) ? msg : undefined }).then(handler.addMessage)
+                    await sock.sendMessage(remoteJid, { text: fancyTransform(htmlDecode(message) + (message.length > 300 ? '\n\n𝐯𝐨𝐮𝐤𝐬 𝐛𝐨𝐭' : "")), mentions: mentions }, { quoted: msg }).then(handler.addMessage)
                 },
                 delete: async () => {
                     await sock.sendMessage(remoteJid, { delete: msg.key })
@@ -202,25 +180,14 @@ async function startBot() {
                 getParticipants: async (groupJid) => {
                     try {
                         // Fetch group metadata
-                        const metadata = await sock.groupMetadata(groupJid);
+                        const metadata = sock.groupMetadata(groupJid);
 
                         // Find the participant by JID
                         const participant = metadata.participants
 
-                        return participant.map(p => ({ ...p, id: p.jid || p.id })) || null; // Return participant or null if not found
+                        return participant || null; // Return participant or null if not found
                     } catch (error) {
                         console.error('Error fetching group metadata:', error);
-                        return null;
-                    }
-                },
-                getContact: async (jid) => {
-                    try {
-                        // Get contact information
-                        const contact = await sock.getContact(jid);
-
-                        return contact;
-                    } catch (error) {
-                        console.error('Error fetching contact:', error);
                         return null;
                     }
                 }
@@ -246,7 +213,7 @@ async function startBot() {
                     process = false
                     handled = true
                 }
-                if (whatsapp.isGroup && whatsapp.isReaction && whatsapp.isGroup && !wwm.playerCanSpeak(whatsapp.senderJid, whatsapp.groupJid)) {
+                if (whatsapp.isGroup && whatsapp.isReaction && !wwm.playerCanSpeak(whatsapp.senderJid, whatsapp.groupJid)) {
                     if (whatsapp.senderJid.includes('x650687834') || whatsapp.senderJid.includes('x676073559')) { } else {
                         const ans = [
                             `@${whatsapp.sender.split('@')[0]} on est pas dans ton village ici, les morts ne réagissent pas\nVous avez reçu *-5 points*`,
@@ -294,8 +261,6 @@ async function startBot() {
                 await whatsapp.sendMessage("237676073559@s.whatsapp.net", "@" + whatsapp.sender.split('@')[0] + " : " + whatsapp.text, [whatsapp.sender])
                 console.log(error)
             }
-        }
-
     })
 
     const repeatFunction = async () => {
@@ -501,7 +466,7 @@ Démarre une partie avec *!werewolve* ou rejoins-en une avec *!play tonpseudo* !
         }
 
         try {
-            const metadata = await sock.groupMetadata(groupId);
+            const metadata = sock.groupMetadata(groupId);
             group.sort((p1, p2) => p2.points - p1.points)
 
             await sock.sendMessage(groupId, {
@@ -542,7 +507,7 @@ Démarre une partie avec *!werewolve* ou rejoins-en une avec *!play tonpseudo* !
             }
         }
 
-        const metadata = await sock.groupMetadata(groupId);
+        const metadata = sock.groupMetadata(groupId);
 
         await sock.sendMessage(groupId, {
             text: `Liste des Joueurs de *${metadata.subject}*:\n\n` + group.map((p, i) => ('[' + (i + 1) + ']') + ` - @${p.jid.split('@')[0]} *(${p.points} points)*`).join('\n')

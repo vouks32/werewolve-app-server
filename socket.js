@@ -1,5 +1,5 @@
 import { getUser, saveUser, getAllUsers, getMessages, saveMessage, getStickers } from './userStorage.js';
-import express from 'express';
+import express, { text } from 'express';
 import cors from 'cors';
 import { Server } from 'socket.io';
 import http from "http";
@@ -7,35 +7,46 @@ import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
 import fs from 'fs';
 import multer from 'multer';
+import { fancyTransform } from './TextConverter.js';
 
 
+
+function htmlDecode(text) {
+    if (typeof text !== 'string') return text;
+    return text
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&apos;/g, "'")
+        .replace(/&nbsp;/g, ' ');
+}
 
 
 const games = [
     {
-      id: '0',
-      tag: '!werewolve',
-      name: 'Loup Garou',
-      icon: '🐺',
-      color: '#eee'
+        id: '0',
+        tag: '!werewolve',
+        name: 'Loup Garou',
+        icon: '🐺',
+        color: '#eee'
     }, {
-      id: '1',
-      tag: '!pendu',
-      name: 'Pendu',
-      icon: '☠️',
-      color: '#eee'
-  
+        id: '1',
+        tag: '!pendu',
+        name: 'Pendu',
+        icon: '☠️',
+        color: '#eee'
+
     }, {
-      id: '2',
-      tag: '!quizfr',
-      name: 'Quiz FR',
-      icon: '🇫🇷',
-      color: '#eee'
-  
+        id: '2',
+        tag: '!quizfr',
+        name: 'Quiz FR',
+        icon: '🇫🇷',
+        color: '#eee'
+
     },
-  ];
-  
-  
+];
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -302,6 +313,53 @@ export class AppSocket {
         }
     }
 
+    async sendMessage(remoteJid, message = { text: "", mentions: [] }, extra = { quoted: null }) {
+        try {
+            if (message.delete) return
+            let msg = {
+                key: {
+                    id: 'server' + '-' + Date.now(),
+                    senderNumber: remoteJid,
+                    name: 'Bot 🐺',
+                    color: "#fff"
+                },
+                type: "text",
+                message: {
+                    caption: message.text || message.caption,
+                    mentions: message.mentions,
+                    quotedMessage: extra.quoted
+                },
+                status: 'sent',
+                time: Date.now()
+            }
+
+            saveMessage(msg);
+
+            // Add to message queue for polling clients
+            const notification = {
+                serverType: 'notification',
+                type: 'message',
+                data: msg,
+                to: remoteJid.startsWith('werewolve') ? null : remoteJid,
+                timestamp: Date.now()
+            };
+            this.messageQueue.push(notification);
+
+            // Notify all pending poll requests
+            this.notifyPendingClients(notification);
+
+            /*this.sendSuccess(res, {
+                success: true,
+                serverType: 'return',
+                type: 'message',
+                data: body.data
+            });*/
+        } catch (error) {
+            console.error('Message error:', error);
+            this.sendError(res, 500, 'Failed to save message', { error: error.message });
+        }
+    }
+
     async handleGetUsers(req, res) {
         try {
             const players = getAllUsers();
@@ -490,6 +548,33 @@ export class AppSocket {
         let arr = this.eventsMap.get(name) || [];
         arr.push(f);
         this.eventsMap.set(name, arr);
+    }
+
+    call_event(name, data) {
+        let arr = this.eventsMap.get(name) || [];
+        arr.forEach(_function => {
+            _function(data)
+        });
+    }
+
+    groupMetadata(groupJid) {
+        const players = getAllUsers()
+        return { participants: players }
+    }
+
+    async groupParticipantsUpdate(groupJid, jidArray, action = 'promote') {
+        let userarr = []
+        for (let i = 0; i < jidArray.length; i++) {
+            const jid = jidArray[i];
+            let user = getUser(jid)
+            userarr.push(user)
+            user.admin = action == "Promote" ? true : false
+            saveUser(user)
+        }
+        return await sock.sendMessage(remoteJid, {
+            text: fancyTransform(htmlDecode(
+                'Les joueurs actuel ont été ' + (action == "Promote" ? "ajoutés" : "retiré") + ' admin:\n\n' + userarr.map(u => '- ' + u.username).join('\n')
+            ) + (message.length > 300 ? '\n\n𝐯𝐨𝐮𝐤𝐬 𝐛𝐨𝐭' : "")), mentions: [] }, { quoted: null })
     }
 
     // Cleanup method

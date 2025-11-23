@@ -280,7 +280,7 @@ export class WereWolvesManager {
             votes: {},   // daytime votes { voterJid: targetJid }
             wolfChoices: {}, // night kills { wolfJid: targetJid }
             seerChoice: null,
-            lastPlayerList: Date.now(),
+            lastPlayerList: Date.now(), 
             doctorChoice: null,
             witchHealAvailable: true,
             witchPoisonAvailable: true,

@@ -287,7 +287,7 @@ export class AppSocket {
             }
 
             body.data.status = "sent"
-            body.data.key.remoteJid = "werewolve-111"
+            body.data.key.remoteJid = body.data.key.remoteJid ? body.data.key.remoteJid : "werewolve-111"
             saveMessage(body.data);
 
             // Add to message queue for polling clients
@@ -325,7 +325,7 @@ export class AppSocket {
                     id: 'server' + '-' + Date.now(),
                     senderNumber: remoteJid,
                     name: 'Bot 🐺',
-                    isBot : true,
+                    isBot: true,
                     color: "#333"
                 },
                 type: "text",
@@ -579,7 +579,8 @@ export class AppSocket {
         return await sock.sendMessage(remoteJid, {
             text: fancyTransform(htmlDecode(
                 'Les joueurs actuel ont été ' + (action == "Promote" ? "ajoutés" : "retiré") + ' admin:\n\n' + userarr.map(u => '- ' + u.username).join('\n')
-            ) + (message.length > 300 ? '\n\n𝐯𝐨𝐮𝐤𝐬 𝐛𝐨𝐭' : "")), mentions: [] }, { quoted: null })
+            ) + (message.length > 300 ? '\n\n𝐯𝐨𝐮𝐤𝐬 𝐛𝐨𝐭' : "")), mentions: []
+        }, { quoted: null })
     }
 
     // Cleanup method

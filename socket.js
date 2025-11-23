@@ -287,6 +287,7 @@ export class AppSocket {
             }
 
             body.data.status = "sent"
+            body.data.key.remoteJid = "werewolve-111"
             saveMessage(body.data);
 
             // Add to message queue for polling clients
@@ -297,6 +298,9 @@ export class AppSocket {
                 timestamp: Date.now()
             };
             this.messageQueue.push(notification);
+
+            // sent to games
+            this.call_event('messages.upsert', body.data)
 
             // Notify all pending poll requests
             this.notifyPendingClients(notification);

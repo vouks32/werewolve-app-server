@@ -325,6 +325,7 @@ export class AppSocket {
                     id: 'server' + '-' + Date.now(),
                     senderNumber: remoteJid,
                     name: 'Bot 🐺',
+                    isBot : true,
                     color: "#fff"
                 },
                 type: "text",

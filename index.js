@@ -1,11 +1,9 @@
 import { WereWolvesManager } from "./GamesManagers/werewolve.js"
-import { makeRetryHandler } from "./handler.js";
 import { QuizManager } from "./GamesManagers/quiz.js";
 import { Insult1 } from "./apis/insult.js";
 import { getAllUsers, getUser, saveUser } from "./userStorage.js";
 import sharp from "sharp";
 import fs from "fs" 
-import NodeCache from "node-cache";
 import { QuizManagerFR } from "./GamesManagers/quiz-fr.js";
 import { fancyTransform } from './TextConverter.js'
 import { PenduManager } from "./GamesManagers/pendu.js";
@@ -17,9 +15,7 @@ const MAX_MESSAGES = 1000
 let messagesCount = MAX_MESSAGES
 let lastGroupJid = null
 
-const handler = makeRetryHandler();
 
-const groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false })
 
 async function optimizeGifSharp(gifPath, width = 300, quality = 80) {
     return await sharp(gifPath)
@@ -112,7 +108,7 @@ async function startBot() {
                 lastGroupJid = remoteJid
             }
             if (text.startsWith('!') && !game && messagesCount <= 0 && isGroup) {
-                await sock.sendMessage(lastGroupJid, { text: fancyTransform(' *--- Redémarrage de sécurité ---* \n\nLa relation toxique que j\'ai avec whatsapp m\'oblige à me redémarrer \n Patiente un peu'), }, { quoted: msg }).then(handler.addMessage)
+                await sock.sendMessage(lastGroupJid, { text: fancyTransform(' *--- Redémarrage de sécurité ---* \n\nLa relation toxique que j\'ai avec whatsapp m\'oblige à me redémarrer \n Patiente un peu'), }, { quoted: msg })
                 await startBot()
                 return
             }
@@ -138,19 +134,19 @@ async function startBot() {
                 raw: msg,
 
                 reply: async (message, mentions = undefined) => {
-                    await sock.sendMessage(remoteJid, { text: fancyTransform(htmlDecode(message) + (message.length > 300 ? '\n\n𝐯𝐨𝐮𝐤𝐬 𝐛𝐨𝐭' : "")), mentions: mentions }, { quoted: msg }).then(handler.addMessage)
+                    await sock.sendMessage(remoteJid, { text: fancyTransform(htmlDecode(message) + (message.length > 300 ? '\n\n𝐯𝐨𝐮𝐤𝐬 𝐛𝐨𝐭' : "")), mentions: mentions }, { quoted: msg })
                 },
                 delete: async () => {
                     await sock.sendMessage(remoteJid, { delete: msg.key })
                 },
 
                 sendMessage: async (jid, message, mentions = undefined) => {
-                    await sock.sendMessage(jid, { text: fancyTransform(htmlDecode(message) + (message.length > 300 ? '\n\n𝐯𝐨𝐮𝐤𝐬 𝐛𝐨𝐭' : "")), mentions: mentions }).then(handler.addMessage)
+                    await sock.sendMessage(jid, { text: fancyTransform(htmlDecode(message) + (message.length > 300 ? '\n\n𝐯𝐨𝐮𝐤𝐬 𝐛𝐨𝐭' : "")), mentions: mentions })
                 },
 
                 sendImage: async (jid, img, caption = "", mentions = []) => {
                     if (img.includes('http')) {
-                        await sock.sendMessage(jid, { image: { url: img }, caption: fancyTransform(htmlDecode(caption)), mentions }).then(handler.addMessage)
+                        await sock.sendMessage(jid, { image: { url: img }, caption: fancyTransform(htmlDecode(caption)), mentions })
                         return
                     }
 
@@ -160,17 +156,17 @@ async function startBot() {
                         },
                         caption: caption,
                         mentions: mentions
-                    }).then(handler.addMessage)
+                    })
 
                     /*const text = "======================\n\n" +
                         htmlDecode(caption) +
                         "\n\n======================"
-                    await sock.sendMessage(jid, { text: fancyTransform(text), mentions: mentions }).then(handler.addMessage)*/
+                    await sock.sendMessage(jid, { text: fancyTransform(text), mentions: mentions })*/
 
                 },
 
                 sendAudio: async (jid, buffer, ptt = false) => {
-                    await sock.sendMessage(jid, { audio: buffer, mimetype: "audio/mp4", ptt }).then(handler.addMessage)
+                    await sock.sendMessage(jid, { audio: buffer, mimetype: "audio/mp4", ptt })
                 },
 
                 sendVideo: async (jid, buffer, caption = "") => {
@@ -281,7 +277,7 @@ async function startBot() {
             await sock.sendMessage(groupJid, {
                 text: fancyTransform(`Liste des Joueurs de *${metadata.subject}*:\n\n` + group.map((p, i) => (i == 0 ? '🥇' : i == 1 ? '🥈' : i == 2 ? '🥉' : '[' + (i + 1) + ']') + ` - @${p.jid.split('@')[0]} *(${p.points} points)*`).join('\n'))
                 , mentions: group.map((p) => p.jid)
-            }).then(handler.addMessage)
+            })
 
 
             for (let index = 0; index < group.length; index++) {
@@ -297,7 +293,7 @@ async function startBot() {
                             [p.jid],
                             'promote' // replace this parameter with 'remove' or 'demote' or 'promote'
                         )
-                        await sock.sendMessage(groupJid, { text: fancyTransform(`@${p.jid.split('@')[0]} a été *ajouté* à la haute sphère des Admins`), mentions: [p.jid] }).then(handler.addMessage)
+                        await sock.sendMessage(groupJid, { text: fancyTransform(`@${p.jid.split('@')[0]} a été *ajouté* à la haute sphère des Admins`), mentions: [p.jid] })
                     } else if (!groupParticipant) {
                         console.log(p.jid, p.pushName, "is no more in group but top 3")
                     }
@@ -308,7 +304,7 @@ async function startBot() {
                             [p.jid],
                             'demote' //'remove' or 'demote' or 'promote'
                         )
-                        await sock.sendMessage(groupJid, { text: `@${p.jid.split('@')[0]} a été *retiré* de la haute sphère des Admins`, mentions: [p.jid] }).then(handler.addMessage)
+                        await sock.sendMessage(groupJid, { text: `@${p.jid.split('@')[0]} a été *retiré* de la haute sphère des Admins`, mentions: [p.jid] })
                     } else if (!groupParticipant) {
                         console.log(p.jid, p.pushName, "is no more in group")
                     }
@@ -474,7 +470,7 @@ Démarre une partie avec *!werewolve* ou rejoins-en une avec *!play tonpseudo* !
                     (i == 0 ? '🥇' : i == 1 ? '🥈' : i == 2 ? '🥉' : '[' + (i + 1) + ']') + ` - @${p.jid.split('@')[0]} *(${p.points} points)*`
                 ).join('\n'),
                 mentions: group.map((p) => p.jid)
-            }).then(handler.addMessage)
+            })
         } catch (err) {
             console.log('[ERROR] !rank handler', err)
             await whatsapp.reply('Erreur lors de la récupération du classement. Check logs.')
@@ -512,7 +508,7 @@ Démarre une partie avec *!werewolve* ou rejoins-en une avec *!play tonpseudo* !
         await sock.sendMessage(groupId, {
             text: `Liste des Joueurs de *${metadata.subject}*:\n\n` + group.map((p, i) => ('[' + (i + 1) + ']') + ` - @${p.jid.split('@')[0]} *(${p.points} points)*`).join('\n')
             , mentions: group.map((p) => p.jid)
-        }).then(handler.addMessage)
+        })
 
     })
 

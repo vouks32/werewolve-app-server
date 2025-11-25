@@ -252,6 +252,7 @@ export class AppSocket {
                 serverType: 'notification',
                 type: 'message',
                 data: data,
+                to : null,
                 timestamp: Date.now()
             };
             this.messageQueue.push(notification);

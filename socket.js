@@ -252,7 +252,7 @@ export class AppSocket {
                 serverType: 'notification',
                 type: 'message',
                 data: data,
-                to : null,
+                to: null,
                 timestamp: Date.now()
             };
             this.messageQueue.push(notification);
@@ -296,13 +296,12 @@ export class AppSocket {
                 serverType: 'notification',
                 type: 'message',
                 data: body.data,
-                to : !body.data.key.remoteJid.startsWith('werewolve') ? body.data.key.remoteJid : null,
+                to: !body.data.key.remoteJid.startsWith('werewolve') ? body.data.key.remoteJid : null,
                 timestamp: Date.now()
             };
             this.messageQueue.push(notification);
 
             // sent to games
-            this.call_event('messages.upsert', body.data)
 
             // Notify all pending poll requests
             this.notifyPendingClients(notification);
@@ -313,6 +312,9 @@ export class AppSocket {
                 type: 'message',
                 data: body.data
             });
+
+            this.call_event('messages.upsert', body.data)
+
         } catch (error) {
             console.error('Message error:', error);
             this.sendError(res, 500, 'Failed to save message', { error: error.message });

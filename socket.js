@@ -295,6 +295,7 @@ export class AppSocket {
                 serverType: 'notification',
                 type: 'message',
                 data: body.data,
+                to : body.data.key.remoteJid ? body.data.key.remoteJid : null,
                 timestamp: Date.now()
             };
             this.messageQueue.push(notification);
@@ -323,7 +324,7 @@ export class AppSocket {
             let msg = {
                 key: {
                     id: 'server' + '-' + Date.now(),
-                    senderNumber: remoteJid,
+                    senderNumber: 'bot',
                     name: 'Bot 🐺',
                     isBot: true,
                     color: "#333"
@@ -363,6 +364,20 @@ export class AppSocket {
             console.error('Message error:', error);
             this.sendError(res, 500, 'Failed to save message', { error: error.message });
         }
+    }
+
+    sendGameInfos(game) {
+        const notification = {
+            serverType: 'notification',
+            type: 'game',
+            data: game,
+            to: null,
+            timestamp: Date.now()
+        };
+        this.messageQueue.push(notification);
+
+        // Notify all pending poll requests
+        this.notifyPendingClients(notification);
     }
 
     async handleGetUsers(req, res) {

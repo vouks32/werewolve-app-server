@@ -132,7 +132,9 @@ async function startBot() {
                 isForward: false,
                 isReaction: (msg.message?.reactionMessage),
                 raw: msg,
-
+                sendGameUpdate: (game) => {
+                    sock.sendGameInfos(game)
+                },
                 reply: async (message, mentions = undefined) => {
                     await sock.sendMessage(remoteJid, { text: fancyTransform(htmlDecode(message) + (message.length > 300 ? '\n\n𝐯𝐨𝐮𝐤𝐬 𝐛𝐨𝐭' : "")), mentions: mentions }, { quoted: msg })
                 },

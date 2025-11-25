@@ -295,7 +295,7 @@ export class AppSocket {
                 serverType: 'notification',
                 type: 'message',
                 data: body.data,
-                to : body.data.key.remoteJid ? body.data.key.remoteJid : null,
+                to : !body.data.key.remoteJid.startsWith('werewolve') ? body.data.key.remoteJid : null,
                 timestamp: Date.now()
             };
             this.messageQueue.push(notification);

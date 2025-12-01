@@ -134,6 +134,7 @@ export class AppSocket {
         this.app.get('/poll', this.handlePoll.bind(this));
         this.app.get('/health', this.handleHealth.bind(this));
         this.app.get('/users', this.handleGetUsers.bind(this));
+        this.app.put('/users', this.handleUpdateUser.bind(this));
         this.app.get('/socket.io', this.handleGetUsers.bind(this));
         this.app.get('/', (req, res) => {
             res.json({ server: "running", ok: true });
@@ -394,6 +395,22 @@ export class AppSocket {
         } catch (error) {
             console.error('Get users error:', error);
             this.sendError(res, 500, 'Failed to get users', { error: error.message });
+        }
+    }
+
+
+    async handleUpdateUser(req, res) {
+        try {
+            saveUser(req.body);
+            this.sendSuccess(res, {
+                success: true,
+                serverType: 'return',
+                type: 'updateUser',
+                data: req.body
+            });
+        } catch (error) {
+            console.error('Update user error:', error);
+            this.sendError(res, 500, 'Failed to update user', { error: error.message });
         }
     }
 
